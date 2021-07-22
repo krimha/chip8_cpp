@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
                 return 1;
 
         // Create the window where we will draw.
-        window = SDL_CreateWindow("SDL_RenderClear",
+        window = SDL_CreateWindow("CHIP8",
                         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                         512, 512,
                         0);
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
         renderer = SDL_CreateRenderer(window, -1, 0);
 
         // Select the color for drawing. It is set to red here.
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
         // Clear the entire screen to our selected color.
         SDL_RenderClear(renderer);
@@ -62,12 +62,11 @@ int main(int argc, char* argv[])
                     closed = true;
                     break;
                 
+                // Handle keypresses
                 case SDL_KEYDOWN:
                     auto sc_code = event.key.keysym.scancode;
                     if (scan_map.find(sc_code) != scan_map.end())
                         std::cout << scan_map[sc_code] << '\n';
-                    else
-                        std::cout << "Not recognize\n";
                 }
             }
         }

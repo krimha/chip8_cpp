@@ -2,34 +2,38 @@
 #include <iostream>
 #include <unordered_map>
 
+
+
 int main(int argc, char* argv[])
 {
-        SDL_Window* window;
-        SDL_Renderer* renderer;
+        SDL_Window* window = nullptr;
+        SDL_Renderer* renderer = nullptr;
+        //SDL_Surface* windowSurface = nullptr;
+        
+        const unsigned int window_width = 64;
+        const unsigned int window_height = 32;
+        const unsigned int window_scale = 16;
+
+        const unsigned int window_real_width = window_width * window_scale;
+        const unsigned int window_real_height = window_height * window_scale;
+
 
         // Initialize SDL.
-        if (SDL_Init(SDL_INIT_VIDEO) < 0)
-                return 1;
+        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+            std::cout << "Error: " << SDL_GetError() << '\n';
+            return 1;
+                }
 
-        // Create the window where we will draw.
-        window = SDL_CreateWindow("CHIP8",
-                        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                        512, 512,
-                        0);
+        SDL_CreateWindowAndRenderer(window_real_width, window_real_height, 0, &window, &renderer);
+        SDL_RenderSetLogicalSize(renderer, window_width, window_height);
 
-        // We must call SDL_CreateRenderer in order for draw calls to affect this window.
-        renderer = SDL_CreateRenderer(window, -1, 0);
-
-        // Select the color for drawing. It is set to red here.
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-
-        // Clear the entire screen to our selected color.
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
         SDL_RenderClear(renderer);
+        SDL_SetRenderDrawColor(renderer, 255,255, 255, 255);
 
-        // Up until now everything was drawn behind the scenes.
-        // This will show the new, red contents of the window.
+        SDL_RenderDrawPoint(renderer, 0, 0);
+
         SDL_RenderPresent(renderer);
-
 
         std::unordered_map<int,char> scan_map = {
             {SDL_SCANCODE_1, '1'}, 
@@ -73,6 +77,8 @@ int main(int argc, char* argv[])
 
 
         // Always be sure to clean up
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
         SDL_Quit();
         return 0;
 }

@@ -27,23 +27,18 @@ void render_symbol(SDL_Renderer* renderer, char symbol) {
         { 'E', { 0xF0, 0x80, 0xF0, 0x80, 0xF0 }},
         { 'F', { 0xF0, 0x80, 0xF0, 0x80, 0x80 }}};
 
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     auto sprite = sprites.at(symbol);
     for (int row=0; row<sprite.size(); ++row) {
         auto cursor = 0x80;
         const auto x = sprite[row];
         for (int col=0; col<8; ++col) {
-            if ((cursor & x) == cursor) {
+            if ((cursor & x) == cursor)
                 SDL_RenderDrawPoint(renderer, col, row);
-            } 
             cursor >>= 1;
         }
     }
-
-    
-
     SDL_RenderPresent(renderer);
-
 }
 
 
@@ -112,7 +107,6 @@ int main(int argc, char* argv[])
                     auto sc_code = event.key.keysym.scancode;
                     if (scan_map.find(sc_code) != scan_map.end()) {
                         auto symbol = scan_map[sc_code];
-                        std::cout << symbol << '\n';
                         render_symbol(renderer, symbol); 
                     }
                 }

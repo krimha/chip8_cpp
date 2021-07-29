@@ -159,31 +159,33 @@ namespace Chip8 {
 
     std::string get_unique_name(const std::vector<std::string>& instruction)
     {
-        const auto& main = instruction[0];
-        if (main == "ADD") {
+        std::string name = instruction[0];
+        if (name == "ADD") {
             if (safe_match(instruction, 1, "I") && safe_match(instruction, 2, "V"))
-                return "ADDIVx";
+                name = "ADDIVx";
             else if (safe_match(instruction, 2, "V"))
-                return "ADDVxVy";
+                name = "ADDVxVy";
             else if (safe_match(instruction, 1, "V"))
-                return "ADDVxbyte";
-            
-            throw std::runtime_error("Could not recognize");            
+                name = "ADDVxbyte";
         }
-        else if (main == "JP") {
+        else if (name == "JP") {
             if (safe_match(instruction, 1, "V0"))
-                return "JPV0addr";
+                name = "JPV0addr";
             else
-                return "JPaddr";
+                name = "JPaddr";
         }
-        else if (main == "LD")
-            return "";
-        else if (main == "SE")
-            return "";
-        else if (main == "SNE")
-            return "";
-        else
-            return main;
+        else if (name == "LD")
+            name = "";
+        else if (name == "SE") {
+            if (safe_match(instruction, 2, "V"))
+                name = "SEVxVy";
+            else if (safe_match(instruction, 1, "V"))
+                name = "SEVxbyte";
+        }
+        else if (name == "SNE")
+            name = "";
+
+        return name;
     }
 
     bool safe_match(const std::vector<std::string>& instruction, int index, const std::string& target) 

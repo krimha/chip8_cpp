@@ -42,9 +42,9 @@ TEST_CASE("Test get_unique_name", "[get_unique_name]")
     REQUIRE(get_unique_name({"RET"}) ==  "RET");
     REQUIRE(get_unique_name({"JP", "12"}) == "JPaddr");
     REQUIRE(get_unique_name({"CALL"}) == "CALL");
-    // REQUIRE(get_unique_name({"SEVxbyte"}) == "SEVxbyte");
+    REQUIRE(get_unique_name({"SE", "V5", "123"}) == "SEVxbyte");
     // REQUIRE(get_unique_name({"SNEVxbyte"}) == "SNEVxbyte");
-    // REQUIRE(get_unique_name({"SEVxVy"}) == "SEVxVy");
+    REQUIRE(get_unique_name({"SE", "V6", "V3"}) == "SEVxVy");
     // REQUIRE(get_unique_name({"LDVxbyte"}) == "LDVxbyte");
     REQUIRE(get_unique_name({"ADD", "V2", "5"}) == "ADDVxbyte");
     // REQUIRE(get_unique_name({"LDVxVy"}) == "LDVxVy");

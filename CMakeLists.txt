@@ -10,5 +10,8 @@ add_library(Chip8Lib chip8.h chip8.cpp)
 add_executable(Chip8App run.cpp)
 target_link_libraries(Chip8App PRIVATE Chip8Lib SDL2::SDL2)
 
+add_executable(Chip8Assembler assembler.cpp assembler.h)
+target_link_libraries(Chip8Assembler PRIVATE Chip8Lib)
+
 add_executable(tests tests_main.cpp tests.cpp)
 target_link_libraries(tests PRIVATE Chip8Lib Catch2::Catch2)

@@ -55,6 +55,11 @@ namespace Chip8 {
     // Free functions
     Instruction assemble(std::string_view instruction);
     std::vector<std::string> split(std::string_view instruction);
+    std::vector<Instruction> get_numbers(const std::vector<std::string>& tokens);
+
+    // Takes tokenized instruction
+    std::string get_unique_name(const std::vector<std::string>& instruction);
+    bool safe_match(const std::vector<std::string>& instruction, int index, const std::string& target);
 
     // Ignore optional Vy for now (set default to 0)
 

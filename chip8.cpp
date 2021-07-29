@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <string_view>
 #include <string>
-#include <iostream>
+#include <sstream>
 
 namespace Chip8 {
     static const std::unordered_map<int,char> scan_map = {
@@ -134,5 +134,63 @@ namespace Chip8 {
             result.push_back(item);
 
         return result;
+    }
+
+
+
+    std::vector<Instruction> get_numbers(const std::vector<std::string>& tokens)
+    {
+        std::vector<Instruction> result;
+
+        for (const auto& token : tokens) {
+            if (token[0] >= '0' && token[0] <= '9') {
+                uint16_t num;
+                std::istringstream(token) >> num;
+                result.push_back(num);
+            } else if (token[0] == 'V') {
+                uint16_t num;
+                std::istringstream(token.substr(1)) >> num;
+                result.push_back(num);
+            }
+        }
+
+        return result;
+    }
+
+    std::string get_unique_name(const std::vector<std::string>& instruction)
+    {
+        const auto& main = instruction[0];
+        if (main == "ADD") {
+            if (safe_match(instruction, 1, "I") && safe_match(instruction, 2, "V"))
+                return "ADDIVx";
+            else if (safe_match(instruction, 2, "V"))
+                return "ADDVxVy";
+            else if (safe_match(instruction, 1, "V"))
+                return "ADDVxbyte";
+            
+            throw std::runtime_error("Could not recognize");            
+        }
+        else if (main == "JP") {
+            if (safe_match(instruction, 1, "V0"))
+                return "JPV0addr";
+            else
+                return "JPaddr";
+        }
+        else if (main == "LD")
+            return "";
+        else if (main == "SE")
+            return "";
+        else if (main == "SNE")
+            return "";
+        else
+            return main;
+    }
+
+    bool safe_match(const std::vector<std::string>& instruction, int index, const std::string& target) 
+    {
+        if (index < 0 || index >= instruction.size())
+            return false;
+
+        return instruction[index].rfind(target, 0) == 0;
     }
 }

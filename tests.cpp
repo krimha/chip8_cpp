@@ -43,7 +43,7 @@ TEST_CASE("Test get_unique_name", "[get_unique_name]")
     REQUIRE(get_unique_name({"JP", "12"}) == "JPaddr");
     REQUIRE(get_unique_name({"CALL"}) == "CALL");
     REQUIRE(get_unique_name({"SE", "V5", "123"}) == "SEVxbyte");
-    // REQUIRE(get_unique_name({"SNEVxbyte"}) == "SNEVxbyte");
+    REQUIRE(get_unique_name({"SNE", "V5", "123"}) == "SNEVxbyte");
     REQUIRE(get_unique_name({"SE", "V6", "V3"}) == "SEVxVy");
     // REQUIRE(get_unique_name({"LDVxbyte"}) == "LDVxbyte");
     REQUIRE(get_unique_name({"ADD", "V2", "5"}) == "ADDVxbyte");
@@ -56,7 +56,7 @@ TEST_CASE("Test get_unique_name", "[get_unique_name]")
     REQUIRE(get_unique_name({"SHR"}) == "SHR");
     REQUIRE(get_unique_name({"SUBN"}) == "SUBN");
     REQUIRE(get_unique_name({"SHL"}) == "SHL");
-    // REQUIRE(get_unique_name({"SNEVxVy"}) == "SNEVxVy");
+    REQUIRE(get_unique_name({"SNE", "V3", "V2"}) == "SNEVxVy");
     // REQUIRE(get_unique_name({"LDIaddr"}) == "LDIaddr");
     REQUIRE(get_unique_name({"JP", "V0", "12"}) == "JPV0addr");
     REQUIRE(get_unique_name({"RND"}) == "RND");

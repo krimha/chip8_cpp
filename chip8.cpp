@@ -182,8 +182,12 @@ namespace Chip8 {
             else if (safe_match(instruction, 1, "V"))
                 name = "SEVxbyte";
         }
-        else if (name == "SNE")
-            name = "";
+        else if (name == "SNE") {
+            if (safe_match(instruction, 2, "V"))
+                name = "SNEVxVy";
+            else if (safe_match(instruction, 1, "V"))
+                name = "SNEVxbyte";
+        }
 
         return name;
     }

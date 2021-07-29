@@ -1,6 +1,9 @@
 #include "chip8.h"
 
 #include <unordered_map>
+#include <string_view>
+#include <string>
+#include <iostream>
 
 namespace Chip8 {
     static const std::unordered_map<int,char> scan_map = {
@@ -107,4 +110,29 @@ namespace Chip8 {
         SDL_RenderPresent(renderer);
     }
 
+
+    Instruction assemble(std::string_view instruction)
+    {
+        return 0;
+    }
+
+    std::vector<std::string> split(std::string_view instruction)
+    {
+        std::vector<std::string> result;
+        std::string item;
+        for (const auto& sym : instruction) {
+            if (sym == ' ' || sym == ',') {
+                if (item.size() > 0)
+                    result.push_back(item);
+                item.clear();
+                continue;
+            } else {
+                item.push_back(sym);
+            }
+        }
+        if (item.size() > 0)
+            result.push_back(item);
+
+        return result;
+    }
 }

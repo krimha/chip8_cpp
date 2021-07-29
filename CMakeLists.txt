@@ -14,4 +14,5 @@ add_executable(Chip8Assembler assembler.cpp assembler.h)
 target_link_libraries(Chip8Assembler PRIVATE Chip8Lib)
 
 add_executable(tests tests_main.cpp tests.cpp)
-target_link_libraries(tests PRIVATE Chip8Lib Catch2::Catch2)
+# We might want to remove the dependence on SDL2?
+target_link_libraries(tests PRIVATE Chip8Lib Catch2::Catch2 SDL2::SDL2)

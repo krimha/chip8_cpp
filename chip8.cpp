@@ -174,8 +174,32 @@ namespace Chip8 {
             else
                 name = "JPaddr";
         }
-        else if (name == "LD")
-            name = "";
+        else if (name == "LD") {
+            if (safe_match(instruction, 1, "V") && safe_match(instruction, 2, "K"))
+                name = "LDVxK";
+            else if (safe_match(instruction, 1, "V") && safe_match(instruction, 2, "V"))
+                name = "LDVxVy";
+            else if (safe_match(instruction, 1, "V") && safe_match(instruction, 2, "DT"))
+                name = "LDVxDT";
+            else if (safe_match(instruction, 1, "V") && safe_match(instruction, 2, "[I]"))
+                name = "LDVxI";
+            else if (safe_match(instruction, 1, "DT") && safe_match(instruction, 2, "V"))
+                name = "LDDTVx";
+            else if (safe_match(instruction, 1, "ST") && safe_match(instruction, 2, "V"))
+                name = "LDSTVx";
+            else if (safe_match(instruction, 1, "F") && safe_match(instruction, 2, "V"))
+                name = "LDFVx";
+            else if (safe_match(instruction, 1, "B") && safe_match(instruction, 2, "V"))
+                name = "LDBVx";
+            else if (safe_match(instruction, 1, "[I]") && safe_match(instruction, 2, "V"))
+                name = "LDIVx";
+            else if (safe_match(instruction, 1, "V"))
+                name = "LDVxbyte";
+            else if (safe_match(instruction, 1, "I"))
+                name = "LDIaddr";
+        }
+
+
         else if (name == "SE") {
             if (safe_match(instruction, 2, "V"))
                 name = "SEVxVy";

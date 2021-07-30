@@ -45,9 +45,7 @@ TEST_CASE("Test get_unique_name", "[get_unique_name]")
     REQUIRE(get_unique_name({"SE", "V5", "123"}) == "SEVxbyte");
     REQUIRE(get_unique_name({"SNE", "V5", "123"}) == "SNEVxbyte");
     REQUIRE(get_unique_name({"SE", "V6", "V3"}) == "SEVxVy");
-    // REQUIRE(get_unique_name({"LDVxbyte"}) == "LDVxbyte");
     REQUIRE(get_unique_name({"ADD", "V2", "5"}) == "ADDVxbyte");
-    // REQUIRE(get_unique_name({"LDVxVy"}) == "LDVxVy");
     REQUIRE(get_unique_name({"OR"}) == "OR");
     REQUIRE(get_unique_name({"AND"}) == "AND");
     REQUIRE(get_unique_name({"XOR"}) == "XOR");
@@ -57,21 +55,26 @@ TEST_CASE("Test get_unique_name", "[get_unique_name]")
     REQUIRE(get_unique_name({"SUBN"}) == "SUBN");
     REQUIRE(get_unique_name({"SHL"}) == "SHL");
     REQUIRE(get_unique_name({"SNE", "V3", "V2"}) == "SNEVxVy");
-    // REQUIRE(get_unique_name({"LDIaddr"}) == "LDIaddr");
     REQUIRE(get_unique_name({"JP", "V0", "12"}) == "JPV0addr");
     REQUIRE(get_unique_name({"RND"}) == "RND");
     REQUIRE(get_unique_name({"DRW"}) == "DRW");
     REQUIRE(get_unique_name({"SKP"}) == "SKP");
     REQUIRE(get_unique_name({"SKNP"}) == "SKNP");
-    // REQUIRE(get_unique_name({"LDVxDT"}) == "LDVxDT");
-    // REQUIRE(get_unique_name({"LDVxK"}) == "LDVxK");
-    // REQUIRE(get_unique_name({"LDDTVx"}) == "LDDTVx");
-    // REQUIRE(get_unique_name({"LDSTVx"}) == "LDSTVx");
     REQUIRE(get_unique_name({"ADD", "I", "V2"}) == "ADDIVx");
-    // REQUIRE(get_unique_name({"LDFVx"}) == "LDFVx");
-    // REQUIRE(get_unique_name({"LDBVx"}) == "LDBVx");
-    // REQUIRE(get_unique_name({"LDIVx"}) == "LDIVx");
-    // REQUIRE(get_unique_name({"LDVxI"}) == "LDVxI");
+
+    REQUIRE(get_unique_name({"LD", "V3", "K"}) == "LDVxK");
+    REQUIRE(get_unique_name({"LD", "V3", "V7"}) == "LDVxVy");
+    REQUIRE(get_unique_name({"LD", "V3", "DT"}) == "LDVxDT");
+    REQUIRE(get_unique_name({"LD", "V3", "[I]"}) == "LDVxI");
+
+    REQUIRE(get_unique_name({"LD", "DT", "V3"}) == "LDDTVx");
+    REQUIRE(get_unique_name({"LD", "ST", "V3"}) == "LDSTVx");
+    REQUIRE(get_unique_name({"LD", "F", "V3"}) == "LDFVx");
+    REQUIRE(get_unique_name({"LD", "B", "V3"}) == "LDBVx");
+
+    REQUIRE(get_unique_name({"LD", "V4", "250"}) == "LDVxbyte");
+    REQUIRE(get_unique_name({"LD", "I", "456"}) == "LDIaddr");
+    REQUIRE(get_unique_name({"LD", "[I]", "V4"}) == "LDIVx");
 
 }
 

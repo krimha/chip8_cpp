@@ -197,6 +197,26 @@ namespace Chip8 {
         auto parts = fields_local.at(name.c_str());
         Instruction result = base_local.at(name.c_str());
 
+        for (int i=0; i<parts.size(); ++i) {
+            auto part = parts[i];
+            auto num = numbers[i];
+
+            switch (part) {
+                case Field::ADDR:
+                    result |= 0x0FFF & num;
+                    break;
+                case Field::BYTE:
+                    result |= 0x00FF & num;
+                    break;
+                case Field::X:
+                    result |= 0x0F00 & (num << 8);
+                    break;
+                case Field::Y:
+                    result |= 0x00F0 & (num << 4);
+                    break;
+            }
+        }
+
         return result;
     }
 

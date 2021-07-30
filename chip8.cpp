@@ -4,6 +4,7 @@
 #include <string_view>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 namespace Chip8 {
     static const std::unordered_map<int,char> scan_map = {
@@ -113,7 +114,90 @@ namespace Chip8 {
 
     Instruction assemble(std::string_view instruction)
     {
-        return 0;
+        std::unordered_map<std::string, uint16_t> base_local {
+            { "SYS"      , 0x0000 },
+                { "CLS"      , 0x00E0 },
+                { "RET"      , 0x00EE },
+                { "JPaddr"   , 0x1000 },
+                { "CALL"     , 0x2000 },
+                { "SEVxbyte" , 0x3000 },
+                { "SNEVxbyte", 0x4000 },
+                { "SEVxVy"   , 0x5000 },
+                { "LDVxbyte" , 0x6000 },
+                { "ADDVxbyte", 0x7000 },
+                { "LDVxVy"   , 0x8000 },
+                { "OR"       , 0x8001 },
+                { "AND"      , 0x8002 },
+                { "XOR"      , 0x8003 },
+                { "ADDVxVy"  , 0x8004 },
+                { "SUB"      , 0x8005 },
+                { "SHR"      , 0x8006 },
+                { "SUBN"     , 0x8007 },
+                { "SHL"      , 0x800E },
+                { "SNEVxVy"  , 0x9000 },
+                { "LDIaddr"  , 0xA000 },
+                { "JPV0addr" , 0xB000 },
+                { "RND"      , 0xC000 },
+                { "DRW"      , 0xD000 },
+                { "SKP"      , 0xE09E },
+                { "SKNP"     , 0xE0A1 },
+                { "LDVxDT"   , 0xF007 },
+                { "LDVxK"    , 0xF00A },
+                { "LDDTVx"   , 0xF015 },
+                { "LDSTVx"   , 0xF018 },
+                { "ADDIVx"   , 0xF01E },
+                { "LDFVx"    , 0xF029 },
+                { "LDBVx"    , 0xF033 },
+                { "LDIVx"    , 0xF055 },
+                { "LDVxI"    , 0xF065 }
+        };
+
+        std::unordered_map<std::string, std::vector<Field>> fields_local {
+            { "SYS"       , { Field::ADDR }}
+            ,{"CLS"       , { } }
+            ,{"RET"       , { }}
+            ,{"JPaddr"    , { Field::ADDR }}
+            ,{"CALL"      , { Field::ADDR }}
+            ,{"SEVxbyte"  , { Field::X, Field::BYTE }}
+            ,{"SNEVxbyte" , { Field::X, Field::BYTE }}
+            ,{"SEVxVy"    , { Field::X, Field::Y }}
+            ,{"LDVxbyte"  , { Field::X, Field::BYTE }}
+            ,{"ADDVxbyte" , { Field::X, Field::BYTE }}
+            ,{"LDVxVy"    , { Field::X, Field::Y }} ,{"OR"        , { Field::X, Field::Y }}
+            ,{"AND"       , { Field::X, Field::Y }}
+            ,{"XOR"       , { Field::X, Field::Y }}
+            ,{"ADDVxVy"   , { Field::X, Field::Y }}
+            ,{"SUB"       , { Field::X, Field::Y }}
+            ,{"SHR"       , { Field::X, Field::Y }}
+            ,{"SUBN"      , { Field::X, Field::Y }}
+            ,{"SHL"       , { Field::X, Field::Y }}
+            ,{"SNEVxVy"   , { Field::X, Field::Y }}
+            ,{"LDIaddr"   , { Field::ADDR }}
+            ,{"JPV0addr"  , { Field::ADDR }}
+            ,{"RND"       , { Field::X, Field::BYTE }}
+            ,{"DRW"       , { Field::X, Field::Y, Field::NIBBLE }}
+            ,{"SKP"       , { Field::X }}
+            ,{"SKNP"      , { Field::X }}
+            ,{"LDVxDT"    , { Field::X }}
+            ,{"LDVxK"     , { Field::X }}
+            ,{"LDDTVx"    , { Field::X }}
+            ,{"LDSTVx"    , { Field::X }}
+            ,{"ADDIVx"    , { Field::X }}
+            ,{"LDFVx"     , { Field::X }}
+            ,{"LDBVx"     , { Field::X }}
+            ,{"LDIVx"     , { Field::X }}
+            ,{"LDVxI"     , { Field::X }}};
+
+
+        auto tokens = split(instruction);
+
+        auto numbers = get_numbers(tokens);
+        auto name = get_unique_name(tokens);
+
+        auto parts = fields_local.at(name.c_str());
+        Instruction result = base_local.at(name.c_str());
+
+        return result;
     }
 
     std::vector<std::string> split(std::string_view instruction)
@@ -159,6 +243,8 @@ namespace Chip8 {
 
     std::string get_unique_name(const std::vector<std::string>& instruction)
     {
+        if (instruction.size() < 1)
+            throw std::runtime_error("Empty instruction");
         std::string name = instruction[0];
         if (name == "ADD") {
             if (safe_match(instruction, 1, "I") && safe_match(instruction, 2, "V"))
@@ -198,8 +284,6 @@ namespace Chip8 {
             else if (safe_match(instruction, 1, "I"))
                 name = "LDIaddr";
         }
-
-
         else if (name == "SE") {
             if (safe_match(instruction, 2, "V"))
                 name = "SEVxVy";

@@ -190,26 +190,11 @@ namespace Chip8 {
             ,{"LDVxI"     , { Field::X }}};
 
 
-	std::cerr << instruction << '\n';
 
         auto tokens = split(instruction);
-
         auto numbers = get_numbers(tokens);
-
-	std::cerr << "Numbers: ";
-	for (const auto& n : numbers)
-	    std::cerr << n << ' ';
-	std::cerr << '\n';
-
         auto name = get_unique_name(tokens);
-	std::cerr << "Name: " << name << '\n';
-
         auto parts = fields_local.at(name.c_str());
-
-	/* std::cerr << "Parts: "; */
-	/* for (const auto& n : parts) */
-	/*     std::cerr << n << ' '; */
-	/* std::cerr << '\n'; */
 
         Instruction result = base_local.at(name.c_str());
 

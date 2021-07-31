@@ -158,15 +158,15 @@ TEST_CASE ("Assemble single instruction", "[asm-instr]")
     CHECK( assemble("JP V0, 291") == 0xB123);
     CHECK( assemble("RND V4, 244") == 0xC4F4);
     CHECK( assemble("DRW V3, V4, 10") == 0xD34A);
-    // CHECK( assemble("SKP Vx") == 0xEx9E);
-    // CHECK( assemble("SKNP Vx") == 0xExA1);
-    // CHECK( assemble("LD Vx, DT") == 0xFx07);
-    // CHECK( assemble("LD Vx, K") == 0xFx0A);
-    // CHECK( assemble("LD DT, Vx") == 0xFx15);
-    // CHECK( assemble("LD ST, Vx") == 0xFx18);
-    // CHECK( assemble("ADD I, Vx") == 0xFx1E);
-    // CHECK( assemble("LD F, Vx") == 0xFx29);
-    // CHECK( assemble("LD B, Vx") == 0xFx33);
-    // CHECK( assemble("LD [I], Vx") == 0xFx55);
-    // CHECK( assemble("LD Vx, [I]") == 0xFx65);
+    CHECK( assemble("SKP V10") == 0xEA9E);
+    CHECK( assemble("SKNP V10") == 0xEAA1);
+    CHECK( assemble("LD V4, DT") == 0xF407);
+    CHECK( assemble("LD V4, K") == 0xF40A);
+    CHECK( assemble("LD DT, V4") == 0xF415);
+    CHECK( assemble("LD ST, V4") == 0xF418);
+    CHECK( assemble("ADD I, V4") == 0xF41E);
+    CHECK( assemble("LD F, V4") == 0xF429);
+    CHECK( assemble("LD B, V4") == 0xF433);
+    CHECK( assemble("LD [I], V4") == 0xF455);
+    CHECK( assemble("LD V4, [I]") == 0xF465);
 }

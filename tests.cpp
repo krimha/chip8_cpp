@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include <catch2/catch.hpp>
 
 #include "chip8.h"
@@ -117,6 +119,18 @@ TEST_CASE("Instruction to name", "[instr-name]")
     REQUIRE( get_unique_name(split("LD Vx, [I]"        )) == "LDVxI"     );
 }
 
+namespace Catch {
+
+    template<>
+    struct StringMaker<Chip8::Instruction> {
+	static std::string convert(Chip8::Instruction const& value) {
+	    std::stringstream stream;
+	    stream << std::hex << value;
+	    return stream.str();
+	}
+    };
+}
+
 TEST_CASE ("Assemble single instruction", "[asm-instr]")
 {
     CHECK_THROWS( assemble(""));
@@ -136,14 +150,14 @@ TEST_CASE ("Assemble single instruction", "[asm-instr]")
     CHECK( assemble("XOR V2, V4") == 0x8243);
     CHECK( assemble("ADD V2, V4") == 0x8244);
     CHECK( assemble("SUB V2, V4") == 0x8245);
-    // CHECK( assemble("SHR Vx {, Vy}") == 0x8xy6);
-    // CHECK( assemble("SUBN Vx, Vy") == 0x8xy7);
-    // CHECK( assemble("SHL Vx {, Vy}") == 0x8xyE);
-    // CHECK( assemble("SNE Vx, Vy") == 0x9xy0);
-    // CHECK( assemble("LD I, addr") == 0xAnnn);
-    // CHECK( assemble("JP V0, addr") == 0xBnnn);
-    // CHECK( assemble("RND Vx, byte") == 0xCxkk);
-    // CHECK( assemble("DRW Vx, Vy, nibble") == 0xDxyn);
+    CHECK( assemble("SHR V3, V4") == 0x8346);
+    CHECK( assemble("SUBN V3, V4") == 0x8347);
+    CHECK( assemble("SHL V3 , V4") == 0x834E);
+    CHECK( assemble("SNE V5, V6") == 0x9560);
+    CHECK( assemble("LD I, 291") == 0xA123);
+    CHECK( assemble("JP V0, 291") == 0xB123);
+    CHECK( assemble("RND V4, 244") == 0xC4F4);
+    CHECK( assemble("DRW V3, V4, 10") == 0xD34A);
     // CHECK( assemble("SKP Vx") == 0xEx9E);
     // CHECK( assemble("SKNP Vx") == 0xExA1);
     // CHECK( assemble("LD Vx, DT") == 0xFx07);

@@ -163,7 +163,8 @@ namespace Chip8 {
             ,{"SEVxVy"    , { Field::X, Field::Y }}
             ,{"LDVxbyte"  , { Field::X, Field::BYTE }}
             ,{"ADDVxbyte" , { Field::X, Field::BYTE }}
-            ,{"LDVxVy"    , { Field::X, Field::Y }} ,{"OR"        , { Field::X, Field::Y }}
+            ,{"LDVxVy"    , { Field::X, Field::Y }} 
+	    ,{"OR"        , { Field::X, Field::Y }}
             ,{"AND"       , { Field::X, Field::Y }}
             ,{"XOR"       , { Field::X, Field::Y }}
             ,{"ADDVxVy"   , { Field::X, Field::Y }}
@@ -173,7 +174,7 @@ namespace Chip8 {
             ,{"SHL"       , { Field::X, Field::Y }}
             ,{"SNEVxVy"   , { Field::X, Field::Y }}
             ,{"LDIaddr"   , { Field::ADDR }}
-            ,{"JPV0addr"  , { Field::ADDR }}
+            ,{"JPV0addr"  , { Field::IGNORE, Field::ADDR }}
             ,{"RND"       , { Field::X, Field::BYTE }}
             ,{"DRW"       , { Field::X, Field::Y, Field::NIBBLE }}
             ,{"SKP"       , { Field::X }}
@@ -189,12 +190,27 @@ namespace Chip8 {
             ,{"LDVxI"     , { Field::X }}};
 
 
+	std::cerr << instruction << '\n';
+
         auto tokens = split(instruction);
 
         auto numbers = get_numbers(tokens);
+
+	std::cerr << "Numbers: ";
+	for (const auto& n : numbers)
+	    std::cerr << n << ' ';
+	std::cerr << '\n';
+
         auto name = get_unique_name(tokens);
+	std::cerr << "Name: " << name << '\n';
 
         auto parts = fields_local.at(name.c_str());
+
+	/* std::cerr << "Parts: "; */
+	/* for (const auto& n : parts) */
+	/*     std::cerr << n << ' '; */
+	/* std::cerr << '\n'; */
+
         Instruction result = base_local.at(name.c_str());
 
         for (int i=0; i<parts.size(); ++i) {
@@ -214,6 +230,11 @@ namespace Chip8 {
                 case Field::Y:
                     result |= 0x00F0 & (num << 4);
                     break;
+                case Field::NIBBLE:
+                    result |= 0x000F & num;
+                    break;
+		case Field::IGNORE:
+		    continue;
             }
         }
 

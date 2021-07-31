@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(Chip8)
 
+set(CXX_STANDARD 20)
+
 find_package(Catch2 REQUIRED)
 find_package(SDL2 REQUIRED)
 

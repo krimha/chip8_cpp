@@ -66,7 +66,7 @@ namespace Chip8 {
     // Lookup table for tokens
     //
 
-    enum class Field { ADDR, X, Y, BYTE, NIBBLE };
+    enum class Field { ADDR, X, Y, BYTE, NIBBLE, IGNORE };
 
 
     // Lookup table for constant terms

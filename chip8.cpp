@@ -111,10 +111,11 @@ namespace Chip8 {
         SDL_RenderPresent(renderer);
     }
 
+
     std::unordered_map<std::string, uint16_t> base_map {
-	{ "SYS"      , 0x0000 },
 	    { "CLS"      , 0x00E0 },
 	    { "RET"      , 0x00EE },
+	    { "SYS"      , 0x0000 },
 	    { "JPaddr"   , 0x1000 },
 	    { "CALL"     , 0x2000 },
 	    { "SEVxbyte" , 0x3000 },
@@ -148,6 +149,47 @@ namespace Chip8 {
 	    { "LDIVx"    , 0xF055 },
 	    { "LDVxI"    , 0xF065 }
     };
+
+
+
+    std::unordered_map<std::string,std::pair<std::vector<std::string>,std::vector<Field>>> formats {
+	    {"CLS",       {{ "CLS" }, {}}}
+	    ,{"RET",       {{ "RET" }, {}}}
+            ,{"SYS",       {{"SYS "}, {Field::ADDR}} }
+	    ,{"JPaddr"   , {{"JP "}, {Field::ADDR}}}
+	    ,{"CALL"     , {{"CALL "}, {Field::ADDR}}}
+	    ,{"SEVxbyte" , {{"SE V", ", "},  {Field::X, Field::BYTE}}}
+	    ,{"SNEVxbyte", {{"SNE V", ", "}, {Field::X, Field::BYTE}}}
+	    ,{"SEVxVy"   , {{"SE V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"LDVxbyte" , {{"LD V", ", "}, {Field::X, Field::BYTE}}}
+	    ,{"ADDVxbyte", {{"ADD V", ", "}, {Field::X, Field::BYTE}}}
+	    ,{"LDVxVy"   , {{"LD V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"OR"       , {{"OR V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"AND"      , {{"AND V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"XOR"      , {{"XOR V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"ADDVxVy"  , {{"ADD V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"SUB"      , {{"SUB V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"SHR"      , {{"SHR V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"SUBN"     , {{"SUBN V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"SHL"      , {{"SHL V", ", V"}, {Field::X , Field::Y}}}
+	    ,{"SNEVxVy"  , {{"SNE V", ", V"}, {Field::X, Field::Y}}}
+	    ,{"LDIaddr"  , {{"LD I, "}, {Field::ADDR}}}
+	    ,{"JPV0addr" , {{"JP V0, "}, {Field::ADDR}}}
+	    ,{"RND"      , {{"RND V", ", "}, {Field::X, Field::BYTE}}}
+	    ,{"DRW"      , {{"DRW V", ", V", ", "}, {Field::X, Field::Y, Field::NIBBLE}}}
+	    ,{"SKP"      , {{"SKP V"}, {Field::X}}}
+	    ,{"SKNP"     , {{"SKNP V"}, {Field::X}}}
+	    ,{"LDVxDT"   , {{"LD V", ", DT"}, {Field::X}}}
+	    ,{"LDVxK"    , {{"LD V", ", K"}, {Field::X}}}
+	    ,{"LDDTVx"   , {{"LD DT, V"}, {Field::X}}}
+	    ,{"LDSTVx"   , {{"LD ST, V"}, {Field::X}}}
+	    ,{"ADDIVx"   , {{"ADD I, V"}, {Field::X}}}
+	    ,{"LDFVx"    , {{"LD F, V"}, {Field::X}}}
+	    ,{"LDBVx"    , {{"LD B, V"},{Field::X}}}
+	    ,{"LDIVx"    , {{"LD [I], V"}, {Field::X}}}
+	    ,{"LDVxI"    , {{"LD V", ", [I]"}, {Field::X}}}
+    };
+
 
     std::string get_name_from_hex(Instruction instruction)
     {
@@ -268,6 +310,52 @@ namespace Chip8 {
         }
 
         return result;
+    }
+
+    int get_field(Instruction instruction, Field field) 
+    {
+            switch (field) {
+		// 0x0nnn
+                case Field::ADDR:
+		    return 0x0FFF & instruction;
+                case Field::BYTE:
+		    return 0x00FF & instruction;
+                case Field::X:
+		    return (0x0F00 & instruction) >> 8;
+                case Field::Y:
+		    return (0x00F0 & instruction) >> 4;
+                case Field::NIBBLE:
+		    return 0x000F & instruction;
+		case Field::IGNORE:
+		    return 0;
+            }
+	    return 0;
+    }
+
+    std::string disassemble(Instruction instruction)
+    {
+	std::stringstream ss;
+
+	std::string instruction_name = get_name_from_hex(instruction);
+	const auto& [literals, fields] = formats.at(instruction_name);
+	
+
+	// Alternate between the two arrays
+	size_t literal_index = 0;
+	size_t field_index = 0;
+	while (literal_index < literals.size() || field_index < fields.size()) {
+	    if (literal_index < literals.size()) {
+		ss << literals[literal_index];	
+		++literal_index;
+	    }
+
+	    if (field_index < fields.size()) {
+		ss << get_field(instruction, fields[field_index]);
+		++field_index;
+	    }
+	}
+
+	return ss.str();
     }
 
     std::vector<std::string> split(std::string_view instruction)

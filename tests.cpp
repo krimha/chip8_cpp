@@ -211,3 +211,43 @@ TEST_CASE("Dissasembe single instruction", "[dissasemble]")
     CHECK( get_name_from_hex(0xF455) == "LDIVx" );     
     CHECK( get_name_from_hex(0xF465) == "LDVxI" );     
 }
+
+TEST_CASE ("Disassemble single instruction", "[dasm-instr]")
+{
+    /* CHECK_THROWS( assemble("")); */
+    CHECK( disassemble(0x00E0) == "CLS"); //  "CLS"      
+    CHECK( disassemble(0x00EE) == "RET"); //  "RET"      
+    CHECK( disassemble(0x0123) == "SYS 291"); //  "SYS"      
+    CHECK( disassemble(0x1123) == "JP 291"); //  "JPaddr"   
+    CHECK( disassemble(0x2123) == "CALL 291"); //  "CALL"     
+    CHECK( disassemble(0x33F4) == "SE V3, 244"); //  "SEVxbyte" 
+    CHECK( disassemble(0x44F4) == "SNE V4, 244"); //  "SNEVxbyte"
+    CHECK( disassemble(0x5120) == "SE V1, V2"); //  "SEVxVy"   
+    CHECK( disassemble(0x61F4) == "LD V1, 244"); //  "LDVxbyte" 
+    CHECK( disassemble(0x71F4) == "ADD V1, 244"); //  "ADDVxbyte"
+    CHECK( disassemble(0x8240) == "LD V2, V4"); //  "LDVxVy"   
+    CHECK( disassemble(0x8241) == "OR V2, V4"); //  "OR"       
+    CHECK( disassemble(0x8242) == "AND V2, V4"); //  "AND"      
+    CHECK( disassemble(0x8243) == "XOR V2, V4"); //  "XOR"      
+    CHECK( disassemble(0x8244) == "ADD V2, V4"); //  "ADDVxVy"  
+    CHECK( disassemble(0x8245) == "SUB V2, V4"); //  "SUB"      
+    CHECK( disassemble(0x8346) == "SHR V3, V4"); //  "SHR"      
+    CHECK( disassemble(0x8347) == "SUBN V3, V4"); //  "SUBN"     
+    CHECK( disassemble(0x834E) == "SHL V3, V4"); //  "SHL"      
+    CHECK( disassemble(0x9560) == "SNE V5, V6"); //  "SNEVxVy"  
+    CHECK( disassemble(0xA123) == "LD I, 291"); //  "LDIaddr"  
+    CHECK( disassemble(0xB123) == "JP V0, 291"); //  "JPV0addr" 
+    CHECK( disassemble(0xC4F4) == "RND V4, 244"); //  "RND"      
+    CHECK( disassemble(0xD34A) == "DRW V3, V4, 10"); //  "DRW"      
+    CHECK( disassemble(0xEA9E) == "SKP V10"); //  "SKP"      
+    CHECK( disassemble(0xEAA1) == "SKNP V10"); //  "SKNP"     
+    CHECK( disassemble(0xF407) == "LD V4, DT"); //  "LDVxDT"   
+    CHECK( disassemble(0xF40A) == "LD V4, K"); //  "LDVxK"    
+    CHECK( disassemble(0xF415) == "LD DT, V4"); //  "LDDTVx"   
+    CHECK( disassemble(0xF418) == "LD ST, V4"); //  "LDSTVx"   
+    CHECK( disassemble(0xF41E) == "ADD I, V4"); //  "ADDIVx"   
+    CHECK( disassemble(0xF429) == "LD F, V4"); //  "LDFVx"    
+    CHECK( disassemble(0xF433) == "LD B, V4"); //  "LDBVx"    
+    CHECK( disassemble(0xF455) == "LD [I], V4"); //  "LDIVx"    
+    CHECK( disassemble(0xF465) == "LD V4, [I]"); //  "LDVxI"    
+}                                                 

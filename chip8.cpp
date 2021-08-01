@@ -111,92 +111,180 @@ namespace Chip8 {
         SDL_RenderPresent(renderer);
     }
 
+    std::unordered_map<std::string, uint16_t> base_map {
+	{ "SYS"      , 0x0000 },
+	    { "CLS"      , 0x00E0 },
+	    { "RET"      , 0x00EE },
+	    { "JPaddr"   , 0x1000 },
+	    { "CALL"     , 0x2000 },
+	    { "SEVxbyte" , 0x3000 },
+	    { "SNEVxbyte", 0x4000 },
+	    { "SEVxVy"   , 0x5000 },
+	    { "LDVxbyte" , 0x6000 },
+	    { "ADDVxbyte", 0x7000 },
+	    { "LDVxVy"   , 0x8000 },
+	    { "OR"       , 0x8001 },
+	    { "AND"      , 0x8002 },
+	    { "XOR"      , 0x8003 },
+	    { "ADDVxVy"  , 0x8004 },
+	    { "SUB"      , 0x8005 },
+	    { "SHR"      , 0x8006 },
+	    { "SUBN"     , 0x8007 },
+	    { "SHL"      , 0x800E },
+	    { "SNEVxVy"  , 0x9000 },
+	    { "LDIaddr"  , 0xA000 },
+	    { "JPV0addr" , 0xB000 },
+	    { "RND"      , 0xC000 },
+	    { "DRW"      , 0xD000 },
+	    { "SKP"      , 0xE09E },
+	    { "SKNP"     , 0xE0A1 },
+	    { "LDVxDT"   , 0xF007 },
+	    { "LDVxK"    , 0xF00A },
+	    { "LDDTVx"   , 0xF015 },
+	    { "LDSTVx"   , 0xF018 },
+	    { "ADDIVx"   , 0xF01E },
+	    { "LDFVx"    , 0xF029 },
+	    { "LDBVx"    , 0xF033 },
+	    { "LDIVx"    , 0xF055 },
+	    { "LDVxI"    , 0xF065 }
+    };
+
+    std::vector<std::pair<uint16_t, std::string>> base_pairs {
+	    { 0x00E0, "CLS" },
+	    { 0x00EE, "RET" },
+	    { 0x1000, "JPaddr" },
+	    { 0x2000, "CALL" },
+	    { 0x3000, "SEVxbyte" },
+	    { 0x4000, "SNEVxbyte" },
+	    { 0x5000, "SEVxVy" },
+	    { 0x6000, "LDVxbyte" },
+	    { 0x7000, "ADDVxbyte" },
+	    { 0x8000, "LDVxVy" },
+	    { 0x8001, "OR" },
+	    { 0x8002, "AND" },
+	    { 0x8003, "XOR" },
+	    { 0x8004, "ADDVxVy" },
+	    { 0x8005, "SUB" },
+	    { 0x8006, "SHR" },
+	    { 0x8007, "SUBN" },
+	    { 0x800E, "SHL" },
+	    { 0x9000, "SNEVxVy" },
+	    { 0xA000, "LDIaddr" },
+	    { 0xB000, "JPV0addr" },
+	    { 0xC000, "RND" },
+	    { 0xD000, "DRW" },
+	    { 0xE09E, "SKP" },
+	    { 0xE0A1, "SKNP" },
+	    { 0xF007, "LDVxDT" },
+	    { 0xF00A, "LDVxK" },
+	    { 0xF015, "LDDTVx" },
+	    { 0xF018, "LDSTVx" },
+	    { 0xF01E, "ADDIVx" },
+	    { 0xF029, "LDFVx" },
+	    { 0xF033, "LDBVx" },
+	    { 0xF055, "LDIVx" },
+	    { 0xF065, "LDVxI" },
+    };
+
+    std::string get_name_from_hex(Instruction instruction)
+    {
+	if (instruction == 0x00E0) return "CLS";
+	else if (instruction == 0x00EE) return "RET";
+	else if (instruction >> 12 == 0x0) return "SYS";
+	else if (instruction >> 12 == 0x1) return "JPaddr";
+	else if (instruction >> 12 == 0x2) return "CALL";
+	else if (instruction >> 12 == 0x3) return "SEVxbyte";  
+	else if (instruction >> 12 == 0x4) return "SNEVxbyte"; 
+	else if (instruction >> 12 == 0x5) return "SEVxVy";    
+	else if (instruction >> 12 == 0x6) return "LDVxbyte";  
+	else if (instruction >> 12 == 0x7) return "ADDVxbyte"; 
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0x0) return "LDVxVy";
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0x1) return "OR";   
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0x2) return "AND";  
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0x3) return "XOR";  
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0x4) return "ADDVxVy";
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0x5) return "SUB";  
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0x6) return "SHR";  
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0x7) return "SUBN"; 
+	else if (instruction >> 12 == 0x8 && (instruction & 0x000F) == 0xE) return "SHL";  
+	else if (instruction >> 12 == 0x9)  return "SNEVxVy";  
+	else if (instruction >> 12 == 0xA) return "LDIaddr" ;  
+	else if (instruction >> 12 == 0xB) return "JPV0addr";  
+	else if (instruction >> 12 == 0xC) return "RND"     ;  
+	else if (instruction >> 12 == 0xD) return "DRW"     ;  
+	else if (instruction >> 12 == 0xE && (instruction & 0x00FF) == 0x9E) return "SKP"     ;  
+	else if (instruction >> 12 == 0xE && (instruction & 0x00FF) == 0xA1) return "SKNP"     ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x07) return "LDVxDT" ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x0A) return "LDVxK"  ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x15) return "LDDTVx" ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x18) return "LDSTVx" ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x1E) return "ADDIVx" ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x29) return "LDFVx"  ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x33) return "LDBVx"  ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x55) return "LDIVx"  ;  
+	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x65) return "LDVxI"  ;  
+
+
+
+
+
+
+
+
+	std::stringstream ss;
+	ss << "Could not find match for instruction " << std::hex << instruction << '\n';
+	throw std::runtime_error(ss.str());
+    }
+
+    std::unordered_map<std::string, std::vector<Field>> fields_map {
+	{ "SYS"       , { Field::ADDR }}
+	,{"CLS"       , { } }
+	,{"RET"       , { }}
+	,{"JPaddr"    , { Field::ADDR }}
+	,{"CALL"      , { Field::ADDR }}
+	,{"SEVxbyte"  , { Field::X, Field::BYTE }}
+	,{"SNEVxbyte" , { Field::X, Field::BYTE }}
+	,{"SEVxVy"    , { Field::X, Field::Y }}
+	,{"LDVxbyte"  , { Field::X, Field::BYTE }}
+	,{"ADDVxbyte" , { Field::X, Field::BYTE }}
+	,{"LDVxVy"    , { Field::X, Field::Y }} 
+	,{"OR"        , { Field::X, Field::Y }}
+	,{"AND"       , { Field::X, Field::Y }}
+	,{"XOR"       , { Field::X, Field::Y }}
+	,{"ADDVxVy"   , { Field::X, Field::Y }}
+	,{"SUB"       , { Field::X, Field::Y }}
+	,{"SHR"       , { Field::X, Field::Y }}
+	,{"SUBN"      , { Field::X, Field::Y }}
+	,{"SHL"       , { Field::X, Field::Y }}
+	,{"SNEVxVy"   , { Field::X, Field::Y }}
+	,{"LDIaddr"   , { Field::ADDR }}
+	,{"JPV0addr"  , { Field::IGNORE, Field::ADDR }}
+	,{"RND"       , { Field::X, Field::BYTE }}
+	,{"DRW"       , { Field::X, Field::Y, Field::NIBBLE }}
+	,{"SKP"       , { Field::X }}
+	,{"SKNP"      , { Field::X }}
+	,{"LDVxDT"    , { Field::X }}
+	,{"LDVxK"     , { Field::X }}
+	,{"LDDTVx"    , { Field::X }}
+	,{"LDSTVx"    , { Field::X }}
+	,{"ADDIVx"    , { Field::X }}
+	,{"LDFVx"     , { Field::X }}
+	,{"LDBVx"     , { Field::X }}
+	,{"LDIVx"     , { Field::X }}
+	,{"LDVxI"     , { Field::X }}};
+
+
 
     Instruction assemble(std::string_view instruction)
     {
-        std::unordered_map<std::string, uint16_t> base_local {
-            { "SYS"      , 0x0000 },
-                { "CLS"      , 0x00E0 },
-                { "RET"      , 0x00EE },
-                { "JPaddr"   , 0x1000 },
-                { "CALL"     , 0x2000 },
-                { "SEVxbyte" , 0x3000 },
-                { "SNEVxbyte", 0x4000 },
-                { "SEVxVy"   , 0x5000 },
-                { "LDVxbyte" , 0x6000 },
-                { "ADDVxbyte", 0x7000 },
-                { "LDVxVy"   , 0x8000 },
-                { "OR"       , 0x8001 },
-                { "AND"      , 0x8002 },
-                { "XOR"      , 0x8003 },
-                { "ADDVxVy"  , 0x8004 },
-                { "SUB"      , 0x8005 },
-                { "SHR"      , 0x8006 },
-                { "SUBN"     , 0x8007 },
-                { "SHL"      , 0x800E },
-                { "SNEVxVy"  , 0x9000 },
-                { "LDIaddr"  , 0xA000 },
-                { "JPV0addr" , 0xB000 },
-                { "RND"      , 0xC000 },
-                { "DRW"      , 0xD000 },
-                { "SKP"      , 0xE09E },
-                { "SKNP"     , 0xE0A1 },
-                { "LDVxDT"   , 0xF007 },
-                { "LDVxK"    , 0xF00A },
-                { "LDDTVx"   , 0xF015 },
-                { "LDSTVx"   , 0xF018 },
-                { "ADDIVx"   , 0xF01E },
-                { "LDFVx"    , 0xF029 },
-                { "LDBVx"    , 0xF033 },
-                { "LDIVx"    , 0xF055 },
-                { "LDVxI"    , 0xF065 }
-        };
-
-        std::unordered_map<std::string, std::vector<Field>> fields_local {
-            { "SYS"       , { Field::ADDR }}
-            ,{"CLS"       , { } }
-            ,{"RET"       , { }}
-            ,{"JPaddr"    , { Field::ADDR }}
-            ,{"CALL"      , { Field::ADDR }}
-            ,{"SEVxbyte"  , { Field::X, Field::BYTE }}
-            ,{"SNEVxbyte" , { Field::X, Field::BYTE }}
-            ,{"SEVxVy"    , { Field::X, Field::Y }}
-            ,{"LDVxbyte"  , { Field::X, Field::BYTE }}
-            ,{"ADDVxbyte" , { Field::X, Field::BYTE }}
-            ,{"LDVxVy"    , { Field::X, Field::Y }} 
-	    ,{"OR"        , { Field::X, Field::Y }}
-            ,{"AND"       , { Field::X, Field::Y }}
-            ,{"XOR"       , { Field::X, Field::Y }}
-            ,{"ADDVxVy"   , { Field::X, Field::Y }}
-            ,{"SUB"       , { Field::X, Field::Y }}
-            ,{"SHR"       , { Field::X, Field::Y }}
-            ,{"SUBN"      , { Field::X, Field::Y }}
-            ,{"SHL"       , { Field::X, Field::Y }}
-            ,{"SNEVxVy"   , { Field::X, Field::Y }}
-            ,{"LDIaddr"   , { Field::ADDR }}
-            ,{"JPV0addr"  , { Field::IGNORE, Field::ADDR }}
-            ,{"RND"       , { Field::X, Field::BYTE }}
-            ,{"DRW"       , { Field::X, Field::Y, Field::NIBBLE }}
-            ,{"SKP"       , { Field::X }}
-            ,{"SKNP"      , { Field::X }}
-            ,{"LDVxDT"    , { Field::X }}
-            ,{"LDVxK"     , { Field::X }}
-            ,{"LDDTVx"    , { Field::X }}
-            ,{"LDSTVx"    , { Field::X }}
-            ,{"ADDIVx"    , { Field::X }}
-            ,{"LDFVx"     , { Field::X }}
-            ,{"LDBVx"     , { Field::X }}
-            ,{"LDIVx"     , { Field::X }}
-            ,{"LDVxI"     , { Field::X }}};
-
 
 
         auto tokens = split(instruction);
         auto numbers = get_numbers(tokens);
         auto name = get_unique_name(tokens);
-        auto parts = fields_local.at(name.c_str());
+        auto parts = fields_map.at(name.c_str());
 
-        Instruction result = base_local.at(name.c_str());
+        Instruction result = base_map.at(name.c_str());
 
         for (int i=0; i<parts.size(); ++i) {
             auto part = parts[i];

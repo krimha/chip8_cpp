@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <ios>
 
 #include <catch2/catch.hpp>
 
@@ -125,7 +126,7 @@ namespace Catch {
     struct StringMaker<Chip8::Instruction> {
 	static std::string convert(Chip8::Instruction const& value) {
 	    std::stringstream stream;
-	    stream << std::hex << value;
+	    stream << std::hex << std::showbase << std::uppercase << value;
 	    return stream.str();
 	}
     };
@@ -134,39 +135,79 @@ namespace Catch {
 TEST_CASE ("Assemble single instruction", "[asm-instr]")
 {
     CHECK_THROWS( assemble(""));
-    CHECK( assemble("CLS") == 0x00E0);
-    CHECK( assemble("RET") == 0x00EE);
-    CHECK( assemble("SYS 291") == 0x0123);
-    CHECK( assemble("JP 291") == 0x1123);
-    CHECK( assemble("CALL 291") == 0x2123);
-    CHECK( assemble("SE V3, 244") == 0x33F4);
-    CHECK( assemble("SNE V4, 244") == 0x44F4);
-    CHECK( assemble("SE V1, V2") == 0x5120);
-    CHECK( assemble("LD V1, 244") == 0x61F4);
-    CHECK( assemble("ADD V1, 244") == 0x71F4);
-    CHECK( assemble("LD V2, V4") == 0x8240);
-    CHECK( assemble("OR V2, V4") == 0x8241);
-    CHECK( assemble("AND V2, V4") == 0x8242);
-    CHECK( assemble("XOR V2, V4") == 0x8243);
-    CHECK( assemble("ADD V2, V4") == 0x8244);
-    CHECK( assemble("SUB V2, V4") == 0x8245);
-    CHECK( assemble("SHR V3, V4") == 0x8346);
-    CHECK( assemble("SUBN V3, V4") == 0x8347);
-    CHECK( assemble("SHL V3 , V4") == 0x834E);
-    CHECK( assemble("SNE V5, V6") == 0x9560);
-    CHECK( assemble("LD I, 291") == 0xA123);
-    CHECK( assemble("JP V0, 291") == 0xB123);
-    CHECK( assemble("RND V4, 244") == 0xC4F4);
-    CHECK( assemble("DRW V3, V4, 10") == 0xD34A);
-    CHECK( assemble("SKP V10") == 0xEA9E);
-    CHECK( assemble("SKNP V10") == 0xEAA1);
-    CHECK( assemble("LD V4, DT") == 0xF407);
-    CHECK( assemble("LD V4, K") == 0xF40A);
-    CHECK( assemble("LD DT, V4") == 0xF415);
-    CHECK( assemble("LD ST, V4") == 0xF418);
-    CHECK( assemble("ADD I, V4") == 0xF41E);
-    CHECK( assemble("LD F, V4") == 0xF429);
-    CHECK( assemble("LD B, V4") == 0xF433);
-    CHECK( assemble("LD [I], V4") == 0xF455);
-    CHECK( assemble("LD V4, [I]") == 0xF465);
+    CHECK( assemble("CLS")            == 0x00E0); //  "CLS"      
+    CHECK( assemble("RET")            == 0x00EE); //  "RET"      
+    CHECK( assemble("SYS 291")        == 0x0123); //  "SYS"      
+    CHECK( assemble("JP 291")         == 0x1123); //  "JPaddr"   
+    CHECK( assemble("CALL 291")       == 0x2123); //  "CALL"     
+    CHECK( assemble("SE V3, 244")     == 0x33F4); //  "SEVxbyte" 
+    CHECK( assemble("SNE V4, 244")    == 0x44F4); //  "SNEVxbyte"
+    CHECK( assemble("SE V1, V2")      == 0x5120); //  "SEVxVy"   
+    CHECK( assemble("LD V1, 244")     == 0x61F4); //  "LDVxbyte" 
+    CHECK( assemble("ADD V1, 244")    == 0x71F4); //  "ADDVxbyte"
+    CHECK( assemble("LD V2, V4")      == 0x8240); //  "LDVxVy"   
+    CHECK( assemble("OR V2, V4")      == 0x8241); //  "OR"       
+    CHECK( assemble("AND V2, V4")     == 0x8242); //  "AND"      
+    CHECK( assemble("XOR V2, V4")     == 0x8243); //  "XOR"      
+    CHECK( assemble("ADD V2, V4")     == 0x8244); //  "ADDVxVy"  
+    CHECK( assemble("SUB V2, V4")     == 0x8245); //  "SUB"      
+    CHECK( assemble("SHR V3, V4")     == 0x8346); //  "SHR"      
+    CHECK( assemble("SUBN V3, V4")    == 0x8347); //  "SUBN"     
+    CHECK( assemble("SHL V3 , V4")    == 0x834E); //  "SHL"      
+    CHECK( assemble("SNE V5, V6")     == 0x9560); //  "SNEVxVy"  
+    CHECK( assemble("LD I, 291")      == 0xA123); //  "LDIaddr"  
+    CHECK( assemble("JP V0, 291")     == 0xB123); //  "JPV0addr" 
+    CHECK( assemble("RND V4, 244")    == 0xC4F4); //  "RND"      
+    CHECK( assemble("DRW V3, V4, 10") == 0xD34A); //  "DRW"      
+    CHECK( assemble("SKP V10")        == 0xEA9E); //  "SKP"      
+    CHECK( assemble("SKNP V10")       == 0xEAA1); //  "SKNP"     
+    CHECK( assemble("LD V4, DT")      == 0xF407); //  "LDVxDT"   
+    CHECK( assemble("LD V4, K")       == 0xF40A); //  "LDVxK"    
+    CHECK( assemble("LD DT, V4")      == 0xF415); //  "LDDTVx"   
+    CHECK( assemble("LD ST, V4")      == 0xF418); //  "LDSTVx"   
+    CHECK( assemble("ADD I, V4")      == 0xF41E); //  "ADDIVx"   
+    CHECK( assemble("LD F, V4")       == 0xF429); //  "LDFVx"    
+    CHECK( assemble("LD B, V4")       == 0xF433); //  "LDBVx"    
+    CHECK( assemble("LD [I], V4")     == 0xF455); //  "LDIVx"    
+    CHECK( assemble("LD V4, [I]")     == 0xF465); //  "LDVxI"    
+}                                                 
+
+TEST_CASE("Dissasembe single instruction", "[dissasemble]")
+{
+    CHECK( get_name_from_hex(0x0000) == "SYS");
+    CHECK( get_name_from_hex(0x0123) == "SYS" );       
+    CHECK( get_name_from_hex(0x00E0) == "CLS" );       
+    CHECK( get_name_from_hex(0x00EE) == "RET" );       
+    CHECK( get_name_from_hex(0x1123) == "JPaddr" );    
+    CHECK( get_name_from_hex(0x2123) == "CALL" );      
+    CHECK( get_name_from_hex(0x33F4) == "SEVxbyte" );  
+    CHECK( get_name_from_hex(0x44F4) == "SNEVxbyte" ); 
+    CHECK( get_name_from_hex(0x5120) == "SEVxVy" );    
+    CHECK( get_name_from_hex(0x61F4) == "LDVxbyte" );  
+    CHECK( get_name_from_hex(0x71F4) == "ADDVxbyte" ); 
+    CHECK( get_name_from_hex(0x8240) == "LDVxVy" );    
+    CHECK( get_name_from_hex(0x8241) == "OR" );        
+    CHECK( get_name_from_hex(0x8242) == "AND" );       
+    CHECK( get_name_from_hex(0x8243) == "XOR" );       
+    CHECK( get_name_from_hex(0x8244) == "ADDVxVy" );   
+    CHECK( get_name_from_hex(0x8245) == "SUB" );       
+    CHECK( get_name_from_hex(0x8346) == "SHR" );       
+    CHECK( get_name_from_hex(0x8347) == "SUBN" );      
+    CHECK( get_name_from_hex(0x834E) == "SHL" );       
+    CHECK( get_name_from_hex(0x9560) == "SNEVxVy" );   
+    CHECK( get_name_from_hex(0xA123) == "LDIaddr" );   
+    CHECK( get_name_from_hex(0xB123) == "JPV0addr" );  
+    CHECK( get_name_from_hex(0xC4F4) == "RND"     );       
+    CHECK( get_name_from_hex(0xD34A) == "DRW"     );       
+    CHECK( get_name_from_hex(0xEA9E) == "SKP"     );       
+    CHECK( get_name_from_hex(0xEAA1) == "SKNP" );      
+    CHECK( get_name_from_hex(0xF407) == "LDVxDT" );    
+    CHECK( get_name_from_hex(0xF40A) == "LDVxK" );     
+    CHECK( get_name_from_hex(0xF415) == "LDDTVx" );    
+    CHECK( get_name_from_hex(0xF418) == "LDSTVx" );    
+    CHECK( get_name_from_hex(0xF41E) == "ADDIVx" );    
+    CHECK( get_name_from_hex(0xF429) == "LDFVx" );     
+    CHECK( get_name_from_hex(0xF433) == "LDBVx" );     
+    CHECK( get_name_from_hex(0xF455) == "LDIVx" );     
+    CHECK( get_name_from_hex(0xF465) == "LDVxI" );     
 }

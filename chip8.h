@@ -54,6 +54,7 @@ namespace Chip8 {
 
     // Free functions
     Instruction assemble(std::string_view instruction);
+    std::string get_name_from_hex(Instruction instruction);
     std::vector<std::string> split(std::string_view instruction);
     std::vector<Instruction> get_numbers(const std::vector<std::string>& tokens);
 

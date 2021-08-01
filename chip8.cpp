@@ -149,43 +149,6 @@ namespace Chip8 {
 	    { "LDVxI"    , 0xF065 }
     };
 
-    std::vector<std::pair<uint16_t, std::string>> base_pairs {
-	    { 0x00E0, "CLS" },
-	    { 0x00EE, "RET" },
-	    { 0x1000, "JPaddr" },
-	    { 0x2000, "CALL" },
-	    { 0x3000, "SEVxbyte" },
-	    { 0x4000, "SNEVxbyte" },
-	    { 0x5000, "SEVxVy" },
-	    { 0x6000, "LDVxbyte" },
-	    { 0x7000, "ADDVxbyte" },
-	    { 0x8000, "LDVxVy" },
-	    { 0x8001, "OR" },
-	    { 0x8002, "AND" },
-	    { 0x8003, "XOR" },
-	    { 0x8004, "ADDVxVy" },
-	    { 0x8005, "SUB" },
-	    { 0x8006, "SHR" },
-	    { 0x8007, "SUBN" },
-	    { 0x800E, "SHL" },
-	    { 0x9000, "SNEVxVy" },
-	    { 0xA000, "LDIaddr" },
-	    { 0xB000, "JPV0addr" },
-	    { 0xC000, "RND" },
-	    { 0xD000, "DRW" },
-	    { 0xE09E, "SKP" },
-	    { 0xE0A1, "SKNP" },
-	    { 0xF007, "LDVxDT" },
-	    { 0xF00A, "LDVxK" },
-	    { 0xF015, "LDDTVx" },
-	    { 0xF018, "LDSTVx" },
-	    { 0xF01E, "ADDIVx" },
-	    { 0xF029, "LDFVx" },
-	    { 0xF033, "LDBVx" },
-	    { 0xF055, "LDIVx" },
-	    { 0xF065, "LDVxI" },
-    };
-
     std::string get_name_from_hex(Instruction instruction)
     {
 	if (instruction == 0x00E0) return "CLS";
@@ -223,13 +186,6 @@ namespace Chip8 {
 	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x33) return "LDBVx"  ;  
 	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x55) return "LDIVx"  ;  
 	else if (instruction >> 12 == 0xF && (instruction & 0x00FF) == 0x65) return "LDVxI"  ;  
-
-
-
-
-
-
-
 
 	std::stringstream ss;
 	ss << "Could not find match for instruction " << std::hex << instruction << '\n';

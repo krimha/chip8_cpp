@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <SDL2/SDL.h>
+#include <ncurses.h>
 
 
 namespace Chip8 {
@@ -17,6 +18,9 @@ namespace Chip8 {
 	    Chip8State();
 	    static constexpr unsigned int memory_size = 0x1000;
 	    static constexpr unsigned int program_start = 0x200;
+
+	    void print_registers();
+	    /* void print_memory(); */
 
         private:
             std::array<uint16_t,16> stack;
@@ -30,6 +34,11 @@ namespace Chip8 {
 
             uint16_t program_counter;
             uint8_t stack_pointer;
+
+	    // ncurses
+	    WINDOW* window_ = nullptr;
+	    static constexpr size_t start_y = 5;
+	    static constexpr size_t start_x = 5;
     };
 
 
@@ -44,6 +53,7 @@ namespace Chip8 {
         private:
             SDL_Window* window = nullptr;
             SDL_Renderer* renderer = nullptr;
+
 
             const unsigned int window_width = 64;
             const unsigned int window_height = 32;

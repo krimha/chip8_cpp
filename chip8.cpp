@@ -5,6 +5,9 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
+
+#include <ncurses.h>
 
 namespace Chip8 {
     static const std::unordered_map<int,uint8_t> scan_map = {
@@ -28,16 +31,57 @@ namespace Chip8 {
 
 
     Chip8State::Chip8State()
-	: stack{0}
-	, memory{0}
-	, registers{0}
-	, I_register{0}
+	: I_register{0}
 	, sound_register{0}
 	, delay_register{0}
 	, program_counter{0x200}
 	, stack_pointer{0}
+	, window_{initscr()}
     {
 
+	for (size_t i=0; i<registers.size(); ++i) {
+	    registers[i] = 0;
+	}
+
+	for (size_t i=0; i<stack.size(); ++i) {
+	    stack[i] = 0;
+	}
+    }
+
+    void Chip8State::print_registers()
+    {
+	constexpr size_t padding = 6;
+	size_t curr_y = 1;
+	static constexpr size_t start_x = 5;
+
+	// I registers
+	wmove(window_, curr_y, start_x);
+	waddstr(window_, "I:");
+	std::stringstream ss;
+	ss << std::setfill('0') << std::setw(4) << std::hex << static_cast<int>(I_register);
+	waddstr(window_, ss.str().c_str());
+
+	
+	curr_y += 2;
+
+
+	for (size_t i=0; i<=0xF; ++i) {
+	    std::stringstream ss;
+	    ss << "V" << std::hex << i;
+
+	    wmove(window_, curr_y, start_x+i*padding);
+	    waddstr(window_, ss.str().c_str());
+	}
+
+	for (size_t i=0; i<=0xF; ++i) {
+	    std::stringstream ss;
+	    ss << std::setfill('0') << std::setw(4) <<  std::hex << static_cast<int>(registers[i]);
+
+	    wmove(window_, curr_y+1, start_x+i*padding);
+	    waddstr(window_, ss.str().c_str());
+	}
+
+	wrefresh(window_);
     }
 
     Chip8Runner::Chip8Runner() : Chip8State::Chip8State()
@@ -58,6 +102,9 @@ namespace Chip8 {
     void Chip8Runner::run()
     {
         bool closed = false;
+
+	print_registers();
+
         while (!closed) {
             SDL_Event event;
 
@@ -85,6 +132,8 @@ namespace Chip8 {
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
+
+	endwin();
     }
 
 

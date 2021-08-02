@@ -19,6 +19,7 @@ namespace Chip8 {
 	    static constexpr unsigned int memory_size = 0x1000;
 	    static constexpr unsigned int program_start = 0x200;
 
+	    void load_file(std::string filename);
 	    void print_registers();
 	    /* void print_memory(); */
 
@@ -37,12 +38,10 @@ namespace Chip8 {
 
 	    // ncurses
 	    WINDOW* window_ = nullptr;
-	    static constexpr size_t start_y = 5;
-	    static constexpr size_t start_x = 5;
     };
 
 
-    class Chip8Runner : Chip8State {
+    class Chip8Runner : public Chip8State {
 
         public:
             Chip8Runner();

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
 #include <ncurses.h>
 
@@ -48,6 +49,29 @@ namespace Chip8 {
 	for (size_t i=0; i<memory.size(); ++i)
 	    memory[i] = 0;
 	
+    }
+
+
+    void Chip8State::load_file(std::string filename)
+    {
+	std::ifstream inputfile;
+	inputfile.open(filename, std::ios::in | std::ios::binary);
+
+	/* if (!inputfile) */
+	/*     throw std::exception("Could not open file"); */
+
+	// TODO: What to do if file does not fit in memory
+	size_t counter = 0x200;
+	Instruction instruction; 
+	while (inputfile.good() && !inputfile.eof()) {
+	    inputfile.read((char*)(&instruction), sizeof(Instruction)); 
+	    uint16_t rev_endian = ((instruction & 0x00ff) << 8 ) | ((instruction & 0xff00) >> 8);
+
+	    // TODO: Possible to simplify this?
+	    memory[counter] = (0xFF00 & rev_endian) >> 8;
+	    memory[counter+1] = 0x00FF & rev_endian;
+	    counter += 2;
+	}
     }
 
     void Chip8State::print_registers()

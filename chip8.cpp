@@ -39,13 +39,15 @@ namespace Chip8 {
 	, window_{initscr()}
     {
 
-	for (size_t i=0; i<registers.size(); ++i) {
+	for (size_t i=0; i<registers.size(); ++i)
 	    registers[i] = 0;
-	}
 
-	for (size_t i=0; i<stack.size(); ++i) {
+	for (size_t i=0; i<stack.size(); ++i)
 	    stack[i] = 0;
-	}
+
+	for (size_t i=0; i<memory.size(); ++i)
+	    memory[i] = 0;
+	
     }
 
     void Chip8State::print_registers()
@@ -61,9 +63,7 @@ namespace Chip8 {
 	ss << std::setfill('0') << std::setw(4) << std::hex << static_cast<int>(I_register);
 	waddstr(window_, ss.str().c_str());
 
-	
 	curr_y += 2;
-
 
 	for (size_t i=0; i<=0xF; ++i) {
 	    std::stringstream ss;
@@ -73,12 +73,35 @@ namespace Chip8 {
 	    waddstr(window_, ss.str().c_str());
 	}
 
+	curr_y += 1;
+
 	for (size_t i=0; i<=0xF; ++i) {
 	    std::stringstream ss;
 	    ss << std::setfill('0') << std::setw(4) <<  std::hex << static_cast<int>(registers[i]);
 
-	    wmove(window_, curr_y+1, start_x+i*padding);
+	    wmove(window_, curr_y, start_x+i*padding);
 	    waddstr(window_, ss.str().c_str());
+	}
+
+	curr_y += 2;
+
+	const size_t mem_start = 0x200; 
+	const size_t mem_padding = 0x4; 
+
+	const size_t per_row = 32;
+
+	size_t curr_mem = mem_start;
+	for (size_t num_row=0; num_row<10; ++num_row) {
+	    std::stringstream ss;
+	    ss << std::hex << std::setfill('0') << std::setw(3) << static_cast<int>(curr_mem) << "  ";
+	    for (size_t i=curr_mem; i<curr_mem+per_row; ++i) {
+		ss << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(memory[i]) << ' ';
+	    }
+	    wmove(window_, curr_y, start_x);
+	    waddstr(window_, ss.str().c_str());
+
+	    curr_y++;
+	    curr_mem += per_row;
 	}
 
 	wrefresh(window_);

@@ -13,8 +13,15 @@ namespace Chip8 {
     using Instruction = uint16_t;
 
     class Chip8State {
+	public:
+	    Chip8State();
+	    static constexpr unsigned int memory_size = 0x1000;
+	    static constexpr unsigned int program_start = 0x200;
 
         private:
+            std::array<uint16_t,16> stack;
+	    std::array<uint8_t,memory_size> memory;
+
             // VF should never be used (used as flag in some programs
             std::array<uint8_t,16> registers;
             uint16_t I_register; // 12 lowest bits used
@@ -23,12 +30,10 @@ namespace Chip8 {
 
             uint16_t program_counter;
             uint8_t stack_pointer;
-
-            std::array<uint16_t,16> stack;
     };
 
 
-    class Chip8Runner {
+    class Chip8Runner : Chip8State {
 
         public:
             Chip8Runner();
@@ -46,9 +51,7 @@ namespace Chip8 {
             const unsigned int window_real_width = window_width * window_scale;
             const unsigned int window_real_height = window_height * window_scale;
 
-            void render_symbol(char symbol);
-
-
+            void render_symbol(uint8_t symbol);
     };
 
 

@@ -321,42 +321,32 @@ TEST_CASE("Clear display", "[clear-display]")
     
 }
 
-TEST_CASE("Return from subroutine", "[return-sub]")
-{
+TEST_CASE("Test interpreter", "[interpreter]") {
     Chip8State m;
-    
     constexpr uint16_t addr = 123;
-    m.push_to_stack(addr);
 
-    SECTION("Using function")
+    SECTION("Return from subroutine", "[return-sub]")
     {
-	m.subroutine_return();
-	CHECK(m.get_program_counter() == addr);
-    }
-
-    SECTION("Using instruction")
-    {
+	m.push_to_stack(addr);
 	m.interpret(0x00EE);
 	CHECK(m.get_program_counter() == addr);
     }
-}
 
-TEST_CASE("Jump to address", "[jump-addr]")
-{
-    Chip8State m;
-    
-    constexpr uint16_t addr = 123;
-    constexpr Instruction instruction = 0x1000 | addr;
-
-    SECTION("Using function")
+    SECTION("Jump to address", "[jump-addr]")
     {
-	m.jump_to_addr(addr);
+	m.interpret(0x1000 | addr);
 	CHECK(m.get_program_counter() == addr);
     }
 
-    SECTION("Using instruction")
+    SECTION("Call subroutine", "[call]") 
     {
-	m.interpret(instruction);
-	CHECK(m.get_program_counter() == addr);
+	const auto old_pc = m.get_program_counter();
+	const auto old_stack = m.get_stack_pointer();
+	m.interpret(0x2000 | addr);
+	CHECK( m.stack_peek() == old_pc );
+	CHECK( m.get_stack_pointer() == old_stack+1 );
+	CHECK( m.get_program_counter() == addr );
     }
 }
+
+

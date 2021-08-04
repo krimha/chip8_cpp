@@ -135,12 +135,12 @@ namespace Chip8 {
 
     void Chip8State::interpret(Instruction instruction)
     {
-	uint8_t first = (instruction & 0xF000) >> 12;
-	uint8_t x = (instruction & 0x0F00) >> 8;
-	uint8_t y = (instruction & 0x00F0) >> 4;
-	uint8_t nibble = instruction & 0x000F;
-	uint8_t kk = instruction & 0x00FF;
-	uint16_t addr = instruction & 0x0FFF;
+	const uint8_t first = (instruction & 0xF000) >> 12;
+	const uint8_t x = (instruction & 0x0F00) >> 8;
+	const uint8_t y = (instruction & 0x00F0) >> 4;
+	const uint8_t nibble = instruction & 0x000F;
+	const uint8_t kk = instruction & 0x00FF;
+	const uint16_t addr = instruction & 0x0FFF;
 	
 	if (instruction == 0x00E0)
 	    clear_display();
@@ -148,8 +148,10 @@ namespace Chip8 {
 	    subroutine_return();
 	else if (first == 1)
 	    jump_to_addr(addr);
-
-
+	else if (first == 2) { // CALL addr
+	    push_to_stack(program_counter);
+	    program_counter = addr;
+	}
     }
 
     void Chip8Runner::print_registers()

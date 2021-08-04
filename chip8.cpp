@@ -152,6 +152,10 @@ namespace Chip8 {
 	    push_to_stack(program_counter);
 	    program_counter = addr;
 	}
+	else if (first == 3) { // SE Vx, byte
+	    if (registers[x] == kk)
+		program_counter += 2;
+	}
     }
 
     void Chip8Runner::print_registers()

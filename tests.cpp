@@ -358,6 +358,36 @@ SCENARIO("Interpreting instructions") {
 		CHECK( m.get_program_counter() == addr );
 	    }
 	}
+
+	WHEN("Issued a SE Vx, byte instruction")
+	{
+	    const uint8_t byte = 0xA4;
+	    const uint8_t reg = 0xB;
+	    const Instruction instruction = 0x3000 | (reg << 8) | byte;
+
+	    CHECK ( instruction == 0x3BA4 );
+
+	    AND_WHEN("The register matches")
+	    {
+		m.set_register(reg, byte);
+		CHECK(m.get_register(reg) == byte);
+		m.interpret(instruction);
+		THEN ("Program counter is incremented by two") 
+		{
+		    CHECK(m.get_program_counter() == old_pc+2);
+		}
+	    }
+
+	    AND_WHEN("Tte registers does not match")
+	    {
+		CHECK(m.get_register(reg) != byte);
+		m.interpret(instruction);
+		THEN ("Program counter is not incremented")
+		{
+		    CHECK(m.get_program_counter() == old_pc);
+		}
+	    }
+	}
     }
 }
 

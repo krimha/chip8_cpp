@@ -537,9 +537,77 @@ SCENARIO("Interpreting instructions") {
 		CHECK(m.get_register(reg_x) == (val_x | val_y));
 	    }
 	}
-	/* WHEN ("Issued a 8xy2 - AND Vx, Vy instruction") {} */
-	/* WHEN ("Issued a 8xy3 - XOR Vx, Vy instruction") {} */
-	/* WHEN ("Issued a 8xy4 - ADD Vx, Vy instruction") {} */
+	WHEN ("Issued a 8xy2 - AND Vx, Vy instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const uint8_t val_x = 0b11111100;
+	    const uint8_t val_y = 0b11110011;
+
+	    const Instruction instruction = 0x8002 | (reg_x << 8) | (reg_y << 4);
+
+	    CHECK ( instruction == 0x8B42 );
+	    m.set_register(reg_x, val_x);
+	    m.set_register(reg_y, val_y);
+
+	    CHECK (m.get_register(reg_x) == val_x);
+	    CHECK (m.get_register(reg_y) == val_y);
+	    m.interpret(instruction);
+
+	    THEN ("Result is correct")
+	    {
+		CHECK(m.get_register(reg_x) == (val_x & val_y));
+	    }
+	}
+
+	WHEN ("Issued a 8xy3 - XOR Vx, Vy instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const uint8_t val_x = 0b11111100;
+	    const uint8_t val_y = 0b11110011;
+
+	    const Instruction instruction = 0x8003 | (reg_x << 8) | (reg_y << 4);
+
+	    CHECK ( instruction == 0x8B43 );
+	    m.set_register(reg_x, val_x);
+	    m.set_register(reg_y, val_y);
+
+	    CHECK (m.get_register(reg_x) == val_x);
+	    CHECK (m.get_register(reg_y) == val_y);
+	    m.interpret(instruction);
+
+	    THEN ("Result is correct")
+	    {
+		CHECK(m.get_register(reg_x) == (val_x ^ val_y));
+	    }
+	}
+
+	WHEN ("Issued a 8xy4 - ADD Vx, Vy instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const uint8_t val_x = 0b11111100;
+	    const uint8_t val_y = 0b11110011;
+
+	    const Instruction instruction = 0x8003 | (reg_x << 8) | (reg_y << 4);
+
+	    CHECK ( instruction == 0x8B43 );
+	    m.set_register(reg_x, val_x);
+	    m.set_register(reg_y, val_y);
+
+	    CHECK (m.get_register(reg_x) == val_x);
+	    CHECK (m.get_register(reg_y) == val_y);
+	    m.interpret(instruction);
+
+	    THEN ("Result is correct")
+	    {
+		CHECK(m.get_register(reg_x) == (val_x ^ val_y));
+	    }
+	}
 	/* WHEN ("Issued a 8xy5 - SUB Vx, Vy instruction") {} */
 	/* WHEN ("Issued a 8xy6 - SHR Vx {, Vy} instruction") {} */
 	/* WHEN ("Issued a 8xy7 - SUBN Vx, Vy instruction") {} */

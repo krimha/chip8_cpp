@@ -251,3 +251,93 @@ TEST_CASE ("Disassemble single instruction", "[dasm-instr]")
     CHECK( disassemble(0xF455) == "LD [I], V4"); //  "LDIVx"    
     CHECK( disassemble(0xF465) == "LD V4, [I]"); //  "LDVxI"    
 }                                                 
+
+TEST_CASE ("Test instructions", "[instr]")
+{
+    std::stringstream ss;
+    Chip8State m;
+    CHECK( disassemble(0x00E0) == "CLS"); //  "CLS"      
+    CHECK( disassemble(0x00EE) == "RET"); //  "RET"      
+    CHECK( disassemble(0x0123) == "SYS 291"); //  "SYS"      
+    CHECK( disassemble(0x1123) == "JP 291"); //  "JPaddr"   
+    CHECK( disassemble(0x2123) == "CALL 291"); //  "CALL"     
+    CHECK( disassemble(0x33F4) == "SE V3, 244"); //  "SEVxbyte" 
+    CHECK( disassemble(0x44F4) == "SNE V4, 244"); //  "SNEVxbyte"
+    CHECK( disassemble(0x5120) == "SE V1, V2"); //  "SEVxVy"   
+    CHECK( disassemble(0x61F4) == "LD V1, 244"); //  "LDVxbyte" 
+    CHECK( disassemble(0x71F4) == "ADD V1, 244"); //  "ADDVxbyte"
+    CHECK( disassemble(0x8240) == "LD V2, V4"); //  "LDVxVy"   
+    CHECK( disassemble(0x8241) == "OR V2, V4"); //  "OR"       
+    CHECK( disassemble(0x8242) == "AND V2, V4"); //  "AND"      
+    CHECK( disassemble(0x8243) == "XOR V2, V4"); //  "XOR"      
+    CHECK( disassemble(0x8244) == "ADD V2, V4"); //  "ADDVxVy"  
+    CHECK( disassemble(0x8245) == "SUB V2, V4"); //  "SUB"      
+    CHECK( disassemble(0x8346) == "SHR V3, V4"); //  "SHR"      
+    CHECK( disassemble(0x8347) == "SUBN V3, V4"); //  "SUBN"     
+    CHECK( disassemble(0x834E) == "SHL V3, V4"); //  "SHL"      
+    CHECK( disassemble(0x9560) == "SNE V5, V6"); //  "SNEVxVy"  
+    CHECK( disassemble(0xA123) == "LD I, 291"); //  "LDIaddr"  
+    CHECK( disassemble(0xB123) == "JP V0, 291"); //  "JPV0addr" 
+    CHECK( disassemble(0xC4F4) == "RND V4, 244"); //  "RND"      
+    CHECK( disassemble(0xD34A) == "DRW V3, V4, 10"); //  "DRW"      
+    CHECK( disassemble(0xEA9E) == "SKP V10"); //  "SKP"      
+    CHECK( disassemble(0xEAA1) == "SKNP V10"); //  "SKNP"     
+    CHECK( disassemble(0xF407) == "LD V4, DT"); //  "LDVxDT"   
+    CHECK( disassemble(0xF40A) == "LD V4, K"); //  "LDVxK"    
+    CHECK( disassemble(0xF415) == "LD DT, V4"); //  "LDDTVx"   
+    CHECK( disassemble(0xF418) == "LD ST, V4"); //  "LDSTVx"   
+    CHECK( disassemble(0xF41E) == "ADD I, V4"); //  "ADDIVx"   
+    CHECK( disassemble(0xF429) == "LD F, V4"); //  "LDFVx"    
+    CHECK( disassemble(0xF433) == "LD B, V4"); //  "LDBVx"    
+    CHECK( disassemble(0xF455) == "LD [I], V4"); //  "LDIVx"    
+    CHECK( disassemble(0xF465) == "LD V4, [I]"); //  "LDVxI"    
+    /* Chip8State m = Chip8State(); */
+    
+/*     m.set_display_row(0, 0xF000000000000000); */
+/*     m.set_display_row(1, 0x0F00000000000000); */
+/*     m.set_display_row(2, 0x00F0000000000000); */
+
+    /* REQUIRE(m.get_display_row(0) != 0); */
+    /* REQUIRE(m.get_display_row(1) != 0); */
+    /* REQUIRE(m.get_display_row(2) != 0); */
+
+}                                                 
+
+
+TEST_CASE("Clear display", "[clear-display]") 
+{
+    Chip8State m;
+    m.set_display_row(0, 0xF);
+
+    SECTION("Clear display directly", "[clear-direct]") {
+	m.clear_display();
+	CHECK( m.get_display_row(0) == 0 );
+    }
+
+    SECTION("Clear display with instruction", "[clear-instruction]") {
+	m.interpret(0x00E0);
+	CHECK( m.get_display_row(0) == 0 );
+    }
+    
+}
+
+TEST_CASE("Return from subroutine", "[return-sub]")
+{
+    Chip8State m;
+    
+    constexpr uint16_t addr = 123;
+    m.push_to_stack(addr);
+
+    SECTION("Using function")
+    {
+	m.subroutine_return();
+	CHECK(m.get_program_counter() == addr);
+    }
+
+    SECTION("Using instruction")
+    {
+	m.interpret(0x00EE);
+	CHECK(m.get_program_counter() == addr);
+    }
+}
+

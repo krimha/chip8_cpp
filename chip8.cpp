@@ -37,7 +37,6 @@ namespace Chip8 {
 	, delay_register{0}
 	, program_counter{0x200}
 	, stack_pointer{0}
-	, window_{initscr()}
     {
 
 	for (size_t i=0; i<registers.size(); ++i)
@@ -48,7 +47,30 @@ namespace Chip8 {
 
 	for (size_t i=0; i<memory.size(); ++i)
 	    memory[i] = 0;
-	
+
+	for (size_t i=0; i<display.size(); ++i)
+	    display[i] = 0;
+
+
+        std::array<uint8_t,80> sprites = { 0xF0, 0x90, 0x90, 0x90, 0xF0,
+					 0x20, 0x60, 0x20, 0x20, 0x70, 
+					 0xF0, 0x10, 0xF0, 0x80, 0xF0, 
+					 0xF0, 0x10, 0xF0, 0x10, 0xF0,
+					 0x90, 0x90, 0xF0, 0x10, 0x10,
+					 0xF0, 0x80, 0xF0, 0x10, 0xF0,
+					 0xF0, 0x80, 0xF0, 0x90, 0xF0,
+					 0xF0, 0x10, 0x20, 0x40, 0x40,
+					 0xF0, 0x90, 0xF0, 0x90, 0xF0,
+					 0xF0, 0x90, 0xF0, 0x10, 0xF0,
+					 0xF0, 0x90, 0xF0, 0x90, 0x90,
+					 0xE0, 0x90, 0xE0, 0x90, 0xE0,
+					 0xF0, 0x80, 0x80, 0x80, 0xF0,
+					 0xE0, 0x90, 0x90, 0x90, 0xE0,
+					 0xF0, 0x80, 0xF0, 0x80, 0xF0,
+					 0xF0, 0x80, 0xF0, 0x80, 0x80 };
+
+	for (size_t i=0; i<sprites.size(); ++i)
+	    memory[i] = sprites[i];
     }
 
 
@@ -74,18 +96,79 @@ namespace Chip8 {
 	}
     }
 
-    void Chip8State::print_registers()
+    void Chip8State::set_display_row(size_t row, uint64_t value)
+    {
+	display[row] = value;
+    }
+
+    uint64_t Chip8State::get_display_row(size_t row)
+    {
+	return display[row];
+    }
+
+
+    void Chip8State::push_to_stack(uint16_t addr)
+    {
+	stack_pointer++;
+	stack[stack_pointer] = addr;
+    }
+    
+
+    // Instruction specific
+
+    void Chip8State::clear_display()
+    {
+	for (size_t i=0; i<display.size(); ++i)
+	    display[i] = 0;
+    }
+
+
+    void Chip8State::subroutine_return()
+    {
+	program_counter = stack[stack_pointer--];
+    }
+
+    void Chip8State::interpret(Instruction instruction)
+    {
+	uint8_t first = (instruction & 0xF000) >> 12;
+	uint8_t x = (instruction & 0x0F00) >> 8;
+	uint8_t y = (instruction & 0x00F0) >> 4;
+	uint8_t nibble = instruction & 0x000F;
+	uint8_t kk = instruction & 0x00FF;
+	uint16_t addr = instruction & 0x0FFF;
+	
+	if (instruction == 0x00E0)
+	    clear_display();
+	else if (instruction == 0x00EE)
+	    subroutine_return();
+
+
+    }
+
+    void Chip8Runner::print_registers()
     {
 	constexpr size_t padding = 6;
 	size_t curr_y = 1;
 	static constexpr size_t start_x = 5;
 
-	// I registers
-	wmove(window_, curr_y, start_x);
-	waddstr(window_, "I:");
-	std::stringstream ss;
-	ss << std::setfill('0') << std::setw(4) << std::hex << static_cast<int>(I_register);
-	waddstr(window_, ss.str().c_str());
+	{
+	    // I registers
+	    wmove(window_, curr_y, start_x);
+	    waddstr(window_, "I:");
+	    std::stringstream ss;
+	    ss << std::setfill('0') << std::setw(4) << std::hex << static_cast<int>(get_I_register());
+	    waddstr(window_, ss.str().c_str());
+	}
+
+	curr_y += 2;
+
+	{
+	    wmove(window_, curr_y, start_x);
+	    waddstr(window_, "PC:");
+	    std::stringstream ss;
+	    ss << std::setfill('0') << std::setw(4) << std::hex << static_cast<int>(get_program_counter());
+	    waddstr(window_, ss.str().c_str());
+	}
 
 	curr_y += 2;
 
@@ -101,13 +184,15 @@ namespace Chip8 {
 
 	for (size_t i=0; i<=0xF; ++i) {
 	    std::stringstream ss;
-	    ss << std::setfill('0') << std::setw(4) <<  std::hex << static_cast<int>(registers[i]);
+	    ss << std::setfill('0') << std::setw(4) <<  std::hex << static_cast<int>(get_register(i));
 
 	    wmove(window_, curr_y, start_x+i*padding);
 	    waddstr(window_, ss.str().c_str());
 	}
 
 	curr_y += 2;
+
+	const size_t y_mem_start = curr_y;
 
 	const size_t mem_start = 0x200; 
 	const size_t mem_padding = 0x4; 
@@ -119,7 +204,7 @@ namespace Chip8 {
 	    std::stringstream ss;
 	    ss << std::hex << std::setfill('0') << std::setw(3) << static_cast<int>(curr_mem) << "  ";
 	    for (size_t i=curr_mem; i<curr_mem+per_row; ++i) {
-		ss << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(memory[i]) << ' ';
+		ss << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(get_memory(i)) << ' ';
 	    }
 	    wmove(window_, curr_y, start_x);
 	    waddstr(window_, ss.str().c_str());
@@ -132,6 +217,7 @@ namespace Chip8 {
     }
 
     Chip8Runner::Chip8Runner() : Chip8State::Chip8State()
+			       , window_{initscr()}
     {
         if (SDL_Init(SDL_INIT_VIDEO) < 0)
             return;
@@ -575,3 +661,4 @@ namespace Chip8 {
         return instruction[index].rfind(target, 0) == 0;
     }
 }
+

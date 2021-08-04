@@ -492,6 +492,53 @@ SCENARIO("Interpreting instructions") {
 	    }
 	}
 
+	WHEN ("Issued a 8xy0 - LD Vx, Vy instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const uint8_t val_x = 34;
+	    const uint8_t val_y = 54;
+
+	    const Instruction instruction = 0x8000 | (reg_x << 8) | (reg_y << 4);
+
+	    CHECK ( instruction == 0x8B40 );
+	    m.set_register(reg_x, val_x);
+	    m.set_register(reg_y, val_y);
+
+	    CHECK (m.get_register(reg_x) == val_x);
+	    CHECK (m.get_register(reg_y) == val_y);
+	    m.interpret(instruction);
+
+	    THEN ("Value in Vy is added to Vx")
+	    {
+		CHECK(m.get_register(reg_x) == val_y);
+	    }
+	}
+	/* WHEN ("Issued a 8xy1 - OR Vx, Vy instruction") {} */
+	/* WHEN ("Issued a 8xy2 - AND Vx, Vy instruction") {} */
+	/* WHEN ("Issued a 8xy3 - XOR Vx, Vy instruction") {} */
+	/* WHEN ("Issued a 8xy4 - ADD Vx, Vy instruction") {} */
+	/* WHEN ("Issued a 8xy5 - SUB Vx, Vy instruction") {} */
+	/* WHEN ("Issued a 8xy6 - SHR Vx {, Vy} instruction") {} */
+	/* WHEN ("Issued a 8xy7 - SUBN Vx, Vy instruction") {} */
+	/* WHEN ("Issued a 8xyE - SHL Vx {, Vy} instruction") {} */
+	/* WHEN ("Issued a 9xy0 - SNE Vx, Vy instruction") {} */
+	/* WHEN ("Issued a Annn - LD I, addr instruction") {} */
+	/* WHEN ("Issued a Bnnn - JP V0, addr instruction") {} */
+	/* WHEN ("Issued a Cxkk - RND Vx, byte instruction") {} */
+	/* WHEN ("Issued a Dxyn - DRW Vx, Vy, nibble instruction") {} */
+	/* WHEN ("Issued a Ex9E - SKP Vx instruction") {} */
+	/* WHEN ("Issued a ExA1 - SKNP Vx instruction") {} */
+	/* WHEN ("Issued a Fx07 - LD Vx, DT instruction") {} */
+	/* WHEN ("Issued a Fx0A - LD Vx, K instruction") {} */
+	/* WHEN ("Issued a Fx15 - LD DT, Vx instruction") {} */
+	/* WHEN ("Issued a Fx18 - LD ST, Vx instruction") {} */
+	/* WHEN ("Issued a Fx1E - ADD I, Vx instruction") {} */
+	/* WHEN ("Issued a Fx29 - LD F, Vx instruction") {} */
+	/* WHEN ("Issued a Fx33 - LD B, Vx instruction") {} */
+	/* WHEN ("Issued a Fx55 - LD [I], Vx instruction") {} */
+	/* WHEN ("Issued a Fx65 - LD Vx, [I] instruction") {} */
     }
 }
 

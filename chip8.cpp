@@ -171,6 +171,9 @@ namespace Chip8 {
 	    const auto old_value = get_register(x);
 	    set_register(x, old_value+kk);
 	}
+	else if (first == 8 && nibble == 0) {
+	    set_register(x, get_register(y));
+	}
 
     }
 

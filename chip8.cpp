@@ -167,6 +167,10 @@ namespace Chip8 {
 	else if (first == 6) {
 	    set_register(x, kk);
 	}
+	else if (first == 7) {
+	    const auto old_value = get_register(x);
+	    set_register(x, old_value+kk);
+	}
 
     }
 

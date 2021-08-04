@@ -473,8 +473,23 @@ SCENARIO("Interpreting instructions") {
 	    {
 		CHECK( m.get_register(reg) == byte );
 	    }
-		
+	}
 
+	WHEN("Issued a 7xkk - ADD Vx, byte instruction")
+	{
+	    const uint8_t reg = 0xB;
+	    const uint8_t byte = 0xA4;
+	    const uint8_t original_value = 0x02;
+
+	    const Instruction instruction = 0x7000 | (reg << 8) | byte;
+	    CHECK ( instruction == 0x7BA4 );
+
+	    THEN ("The value added to the register")
+	    {
+		const auto old_value = m.get_register(reg);
+		m.interpret(instruction);
+		CHECK( m.get_register(reg) == old_value+byte );
+	    }
 	}
 
     }

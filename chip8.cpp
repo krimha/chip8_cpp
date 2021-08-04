@@ -128,6 +128,11 @@ namespace Chip8 {
 	program_counter = stack[stack_pointer--];
     }
 
+    void Chip8State::jump_to_addr(uint16_t addr)
+    {
+	program_counter = addr;
+    }
+
     void Chip8State::interpret(Instruction instruction)
     {
 	uint8_t first = (instruction & 0xF000) >> 12;
@@ -141,6 +146,8 @@ namespace Chip8 {
 	    clear_display();
 	else if (instruction == 0x00EE)
 	    subroutine_return();
+	else if (first == 1)
+	    jump_to_addr(addr);
 
 
     }

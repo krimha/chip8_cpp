@@ -28,6 +28,7 @@ namespace Chip8 {
 	    // Instruction functions
 	    void clear_display();
 	    void subroutine_return();
+	    void jump_to_addr(uint16_t addr);
 
 	    // util functions
 	    uint16_t get_I_register() { return I_register; }

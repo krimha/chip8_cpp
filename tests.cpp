@@ -341,3 +341,22 @@ TEST_CASE("Return from subroutine", "[return-sub]")
     }
 }
 
+TEST_CASE("Jump to address", "[jump-addr]")
+{
+    Chip8State m;
+    
+    constexpr uint16_t addr = 123;
+    constexpr Instruction instruction = 0x1000 | addr;
+
+    SECTION("Using function")
+    {
+	m.jump_to_addr(addr);
+	CHECK(m.get_program_counter() == addr);
+    }
+
+    SECTION("Using instruction")
+    {
+	m.interpret(instruction);
+	CHECK(m.get_program_counter() == addr);
+    }
+}

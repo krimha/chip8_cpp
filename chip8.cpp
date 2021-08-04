@@ -164,6 +164,10 @@ namespace Chip8 {
 	    if (registers[x] == registers[y])
 		program_counter += 2;
 	}
+	else if (first == 6) {
+	    set_register(x, kk);
+	}
+
     }
 
     void Chip8Runner::print_registers()

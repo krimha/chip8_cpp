@@ -460,6 +460,23 @@ SCENARIO("Interpreting instructions") {
 	    }
 	}
 
+	WHEN("Issued a LD Vx, byte instruction")
+	{
+	    const uint8_t byte = 0xA4;
+	    const uint8_t reg = 0xB;
+	    const Instruction instruction = 0x6000 | (reg << 8) | byte;
+
+	    CHECK ( instruction == 0x6BA4 );
+	    m.interpret(instruction);
+
+	    THEN ("The value is loaded into the register")
+	    {
+		CHECK( m.get_register(reg) == byte );
+	    }
+		
+
+	}
+
     }
 }
 

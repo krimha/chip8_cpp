@@ -325,6 +325,9 @@ TEST_CASE("Test interpreter", "[interpreter]") {
     Chip8State m;
     constexpr uint16_t addr = 123;
 
+    const auto old_pc = m.get_program_counter();
+    const auto old_stack = m.get_stack_pointer();
+
     SECTION("Return from subroutine", "[return-sub]")
     {
 	m.push_to_stack(addr);
@@ -340,13 +343,13 @@ TEST_CASE("Test interpreter", "[interpreter]") {
 
     SECTION("Call subroutine", "[call]") 
     {
-	const auto old_pc = m.get_program_counter();
-	const auto old_stack = m.get_stack_pointer();
 	m.interpret(0x2000 | addr);
 	CHECK( m.stack_peek() == old_pc );
 	CHECK( m.get_stack_pointer() == old_stack+1 );
 	CHECK( m.get_program_counter() == addr );
     }
+
 }
+
 
 

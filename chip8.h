@@ -34,10 +34,12 @@ namespace Chip8 {
 	    uint16_t get_I_register() { return I_register; }
 	    uint16_t get_program_counter() { return program_counter; }
 	    uint16_t get_register(size_t i) { return registers[i]; }
-	    void set_display_row(size_t row, uint64_t value);
 	    uint8_t get_memory(size_t addr) { return memory[addr]; };
 	    uint16_t stack_peek() { return stack[stack_pointer]; }
 	    uint8_t get_stack_pointer() { return stack_pointer; }
+
+	    void set_display_row(size_t row, uint64_t value);
+	    void set_register(uint8_t reg, uint8_t value) { registers[reg] = value; }
 
 	    uint64_t get_display_row(size_t row);
 	    void push_to_stack(uint16_t addr);

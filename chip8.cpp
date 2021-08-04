@@ -174,6 +174,9 @@ namespace Chip8 {
 	else if (first == 8 && nibble == 0) {
 	    set_register(x, get_register(y));
 	}
+	else if (first == 8 && nibble == 1) {
+	    set_register(x, get_register(x) | get_register(y));
+	}
 
     }
 

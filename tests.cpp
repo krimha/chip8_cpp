@@ -418,6 +418,48 @@ SCENARIO("Interpreting instructions") {
 		}
 	    }
 	}
+
+	WHEN("Issued a SE Vx, Vy instruction")
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const uint8_t val_x = 34;
+	    const uint8_t val_y = 54;
+
+	    const Instruction instruction = 0x5000 | (reg_x << 8) | (reg_y << 4);
+
+	    CHECK ( instruction == 0x5B40 );
+
+	    AND_WHEN("The registers do not match")
+	    {
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK(m.get_register(reg_x) != m.get_register(reg_y));
+
+		m.interpret(instruction);
+		THEN ("Program counter is unchanged") 
+		{
+		    CHECK(m.get_program_counter() == old_pc);
+		}
+	    }
+
+	    AND_WHEN("The register matches")
+	    {
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_x);
+
+		CHECK(m.get_register(reg_x) == m.get_register(reg_y));
+		m.interpret(instruction);
+
+		THEN ("Program counter is incremented by 2")
+		{
+		    CHECK(m.get_program_counter() == old_pc+2);
+		}
+	    }
+	}
+
     }
 }
 

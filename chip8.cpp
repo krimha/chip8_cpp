@@ -160,6 +160,10 @@ namespace Chip8 {
 	    if (registers[x] != kk)
 		program_counter += 2;
 	}
+	else if (first == 5) {
+	    if (registers[x] == registers[y])
+		program_counter += 2;
+	}
     }
 
     void Chip8Runner::print_registers()

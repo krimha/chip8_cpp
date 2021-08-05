@@ -190,6 +190,14 @@ namespace Chip8 {
 	    set_register(x, static_cast<uint8_t>(result));
 	    set_register(0xF, vf_res);
 	}
+	else if (first == 8 && nibble == 5) { // Assumed that underflow is allowed (desired)
+	    auto val_x = get_register(x);
+	    auto val_y = get_register(y);
+	    set_register(x, val_x - val_y);
+
+	    auto vf_res = val_x < val_y ? 1 : 0;
+	    set_register(0xF, 1);
+	}
 
     }
 

@@ -633,7 +633,57 @@ SCENARIO("Interpreting instructions") {
 	    }
 
 	}
-	/* WHEN ("Issued a 8xy5 - SUB Vx, Vy instruction") {} */
+	WHEN ("Issued a 8xy5 - SUB Vx, Vy instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const Instruction instruction = 0x8005 | (reg_x << 8) | (reg_y << 4);
+	    CHECK( instruction == 0x8B45 );
+
+	    AND_WHEN("Vx > Vy")
+	    {
+		const uint8_t val_x = 0x5;
+		const uint8_t val_y = 0x4;
+
+		CHECK( val_x > val_y );
+
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK( m.get_register(reg_x) == val_x );
+		CHECK( m.get_register(reg_y) == val_y );
+
+		m.interpret(instruction);
+		THEN ("VF is set to 1")
+		{
+		    CHECK( m.get_register(0xF) == 1 );
+		    CHECK( m.get_register(reg_x) == val_x - val_y );
+		}
+	    }
+
+	    AND_WHEN("Vx <= Vy")
+	    {
+		const uint8_t val_x = 0x4;
+		const uint8_t val_y = 0x5;
+
+		CHECK( val_x <= val_y );
+
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK( m.get_register(reg_x) == val_x );
+		CHECK( m.get_register(reg_y) == val_y );
+
+		m.interpret(instruction);
+		THEN ("VF is set to 0")
+		{
+		    CHECK( m.get_register(0xF) == 1 );
+		    CHECK( m.get_register(reg_x) == static_cast<uint8_t>(val_x - val_y) );
+		}
+	    }
+
+	}
 	/* WHEN ("Issued a 8xy6 - SHR Vx {, Vy} instruction") {} */
 	/* WHEN ("Issued a 8xy7 - SUBN Vx, Vy instruction") {} */
 	/* WHEN ("Issued a 8xyE - SHL Vx {, Vy} instruction") {} */

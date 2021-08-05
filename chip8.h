@@ -4,6 +4,8 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include <random>
+#include <optional>
 
 #include <SDL2/SDL.h>
 #include <ncurses.h>
@@ -44,6 +46,8 @@ namespace Chip8 {
 	    uint64_t get_display_row(size_t row);
 	    void push_to_stack(uint16_t addr);
 
+	    void seed(int s) { mt.seed(s); };
+
         private:
             std::array<uint16_t,16> stack;
 	    std::array<uint8_t,memory_size> memory;
@@ -57,6 +61,10 @@ namespace Chip8 {
 
             uint16_t program_counter;
             uint8_t stack_pointer;
+
+	    std::random_device rd;
+	    std::mt19937 mt;
+	    std::uniform_int_distribution<uint8_t> dist;
 
     };
 

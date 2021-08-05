@@ -37,6 +37,7 @@ namespace Chip8 {
 	, delay_register{0}
 	, program_counter{0x200}
 	, stack_pointer{0}
+	, dist{0, 255}
     {
 
 	for (size_t i=0; i<registers.size(); ++i)
@@ -71,6 +72,9 @@ namespace Chip8 {
 
 	for (size_t i=0; i<sprites.size(); ++i)
 	    memory[i] = sprites[i];
+
+	// Use with dist(mt);
+	mt.seed(rd());
     }
 
 
@@ -224,6 +228,9 @@ namespace Chip8 {
 	}
 	else if (first == 0xB) {
 	    program_counter = addr + get_register(0);
+	}
+	else if (first == 0xC) {
+	    set_register(x, dist(mt));
 	}
     }
 

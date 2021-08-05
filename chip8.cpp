@@ -222,6 +222,9 @@ namespace Chip8 {
 	else if (first == 0xA) {
 	    I_register = addr;
 	}
+	else if (first == 0xB) {
+	    program_counter = addr + get_register(0);
+	}
     }
 
     void Chip8Runner::print_registers()

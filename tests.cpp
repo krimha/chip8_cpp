@@ -863,11 +863,32 @@ SCENARIO("Interpreting instructions") {
 	    const uint16_t addr = 0x123;
 	    const Instruction instruction = 0xA000 | addr;
 	    CHECK(instruction == 0xA123);
+	    m.interpret(instruction);
+
+	    THEN( "The I register contains the new address" )
+	    {
+		CHECK( m.get_I_register() == addr );
+	    }
+	}
+	WHEN ("Issued a Bnnn - JP V0, addr instruction")
+	{
+	    const uint8_t val_v0 = 0x3F;
+	    const uint16_t addr = 0x1;
+	    const Instruction instruction = 0xB000 | addr;
+	    CHECK (instruction == 0xB001);
+
+	    m.set_register(0, val_v0);
+	    
+
+	    CHECK( m.get_register(0) == val_v0 );
+	    CHECK( val_v0 + addr == 0x40 );
 
 	    m.interpret(instruction);
-	    CHECK( m.get_I_register() == addr );
+	    THEN ("The PC is set to addr + V0")
+	    {
+		CHECK( m.get_program_counter() == 0x40 );
+	    }
 	}
-	/* WHEN ("Issued a Bnnn - JP V0, addr instruction") {} */
 	/* WHEN ("Issued a Cxkk - RND Vx, byte instruction") {} */
 	/* WHEN ("Issued a Dxyn - DRW Vx, Vy, nibble instruction") {} */
 	/* WHEN ("Issued a Ex9E - SKP Vx instruction") {} */

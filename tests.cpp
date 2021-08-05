@@ -720,8 +720,97 @@ SCENARIO("Interpreting instructions") {
 	    }
 
 	}
-	/* WHEN ("Issued a 8xy7 - SUBN Vx, Vy instruction") {} */
-	/* WHEN ("Issued a 8xyE - SHL Vx {, Vy} instruction") {} */
+
+	WHEN ("Issued a 8xy7 - SUBN Vx, Vy instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const Instruction instruction = 0x8007 | (reg_x << 8) | (reg_y << 4);
+	    CHECK( instruction == 0x8B47 );
+
+	    AND_WHEN("Vy > Vx")
+	    {
+		const uint8_t val_y = 0x5;
+		const uint8_t val_x = 0x4;
+
+		CHECK( val_y > val_x );
+
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK( m.get_register(reg_x) == val_x );
+		CHECK( m.get_register(reg_y) == val_y );
+
+		m.interpret(instruction);
+		THEN ("VF is set to 1")
+		{
+		    CHECK( m.get_register(0xF) == 1 );
+		    CHECK( m.get_register(reg_x) == val_y - val_x );
+		}
+	    }
+
+	    AND_WHEN("Vy <= Vx")
+	    {
+		const uint8_t val_y = 0x4;
+		const uint8_t val_x = 0x5;
+
+		CHECK( val_y <= val_x );
+
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK( m.get_register(reg_x) == val_x );
+		CHECK( m.get_register(reg_y) == val_y );
+
+		m.interpret(instruction);
+		THEN ("VF is set to 0")
+		{
+		    CHECK( m.get_register(0xF) == 0 );
+		    CHECK( m.get_register(reg_x) == static_cast<uint8_t>(val_y - val_x) );
+		}
+	    }
+	    
+	}
+
+	WHEN ("Issued a 8xyE - SHL Vx {, Vy} instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const Instruction instruction = 0x800E | (reg_x << 8) | (reg_y << 4);
+	    CHECK( instruction == 0x8B4E );
+
+	    AND_WHEN("Most significant byte is 1")
+	    {
+		const uint8_t val_x = 0xFF;
+		m.set_register(reg_x, val_x);
+		CHECK(m.get_register(reg_x) == val_x);
+
+		m.interpret(instruction);
+		THEN ("Set VF")
+		{
+		    CHECK(m.get_register(reg_x) == static_cast<uint8_t>(val_x * 2));
+		    CHECK(m.get_register(0xF) == 1);
+		}
+	    }
+
+	    AND_WHEN("Least significant byte is 0")
+	    {
+		const uint8_t val_x = 0x7F;
+		m.set_register(reg_x, val_x);
+		CHECK(m.get_register(reg_x) == val_x);
+
+		m.interpret(instruction);
+		THEN ("Set VF to 0")
+		{
+		    CHECK(m.get_register(reg_x) == val_x * 2);
+		    CHECK(m.get_register(0xF) == 0);
+		}
+	    }
+
+
+	}
 	/* WHEN ("Issued a 9xy0 - SNE Vx, Vy instruction") {} */
 	/* WHEN ("Issued a Annn - LD I, addr instruction") {} */
 	/* WHEN ("Issued a Bnnn - JP V0, addr instruction") {} */

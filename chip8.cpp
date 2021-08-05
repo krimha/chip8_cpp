@@ -206,6 +206,16 @@ namespace Chip8 {
 	    set_register(0xF, res_vf);
 	    set_register(x, val_x >> 1);
 	}
+	else if (first == 8 && nibble == 7) {
+	    set_register(x, val_y - val_x);
+
+	    auto vf_res = val_x < val_y ? 1 : 0;
+	    set_register(0xF, vf_res);
+	}
+	else if (first == 8 && nibble == 0xE) {
+	    set_register(0xF, (val_x & 0x80) >> 7);
+	    set_register(x, val_x << 1);
+	}
 
     }
 

@@ -858,7 +858,15 @@ SCENARIO("Interpreting instructions") {
 	    }
 
 	}
-	/* WHEN ("Issued a Annn - LD I, addr instruction") {} */
+	WHEN ("Issued a Annn - LD I, addr instruction") 
+	{
+	    const uint16_t addr = 0x123;
+	    const Instruction instruction = 0xA000 | addr;
+	    CHECK(instruction == 0xA123);
+
+	    m.interpret(instruction);
+	    CHECK( m.get_I_register() == addr );
+	}
 	/* WHEN ("Issued a Bnnn - JP V0, addr instruction") {} */
 	/* WHEN ("Issued a Cxkk - RND Vx, byte instruction") {} */
 	/* WHEN ("Issued a Dxyn - DRW Vx, Vy, nibble instruction") {} */

@@ -219,6 +219,9 @@ namespace Chip8 {
 	else if (first == 9 && nibble == 0) {
 	    program_counter += (val_x == val_y) ? 0 : 2;
 	}
+	else if (first == 0xA) {
+	    I_register = addr;
+	}
     }
 
     void Chip8Runner::print_registers()

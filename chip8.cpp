@@ -230,7 +230,16 @@ namespace Chip8 {
 	    program_counter = addr + get_register(0);
 	}
 	else if (first == 0xC) {
-	    set_register(x, dist(mt));
+	    set_register(x, dist(mt) & kk);
+	}
+	else if (first == 0xD) {
+	    for (uint16_t i=0; i<nibble; ++i) {
+		auto sprite_row = get_memory(get_I_register() + i);
+		
+		// Move sprite to beginning of line
+		uint64_t row = static_cast<uint64_t>(sprite_row) << (14*4);
+		display[i] = row;
+	    }
 	}
     }
 

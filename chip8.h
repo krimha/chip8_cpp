@@ -42,6 +42,7 @@ namespace Chip8 {
 
 	    void set_display_row(size_t row, uint64_t value);
 	    void set_register(uint8_t reg, uint8_t value) { registers[reg] = value; }
+	    void set_I_register(uint16_t addr) { I_register = addr; }
 
 	    uint64_t get_display_row(size_t row);
 	    void push_to_stack(uint16_t addr);

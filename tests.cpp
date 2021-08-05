@@ -590,23 +590,48 @@ SCENARIO("Interpreting instructions") {
 	    const uint8_t reg_x = 0xB;
 	    const uint8_t reg_y = 0x4;
 
-	    const uint8_t val_x = 0b11111100;
-	    const uint8_t val_y = 0b11110011;
+	    const Instruction instruction = 0x8004 | (reg_x << 8) | (reg_y << 4);
+	    CHECK( instruction == 0x8B44 );
 
-	    const Instruction instruction = 0x8003 | (reg_x << 8) | (reg_y << 4);
-
-	    CHECK ( instruction == 0x8B43 );
-	    m.set_register(reg_x, val_x);
-	    m.set_register(reg_y, val_y);
-
-	    CHECK (m.get_register(reg_x) == val_x);
-	    CHECK (m.get_register(reg_y) == val_y);
-	    m.interpret(instruction);
-
-	    THEN ("Result is correct")
+	    AND_WHEN("Result is lower than 255")
 	    {
-		CHECK(m.get_register(reg_x) == (val_x ^ val_y));
+		const uint8_t val_x = 0x1;
+		const uint8_t val_y = 0x2;
+
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK( m.get_register(reg_x) == val_x );
+		CHECK( m.get_register(reg_y) == val_y );
+
+		m.interpret(instruction);
+		THEN("The result is correct, and VF is not set") {
+		    CHECK( m.get_register(reg_x) == (val_x + val_y) );
+		    CHECK( m.get_register(0xF) == 0 );
+		}
 	    }
+
+	    AND_WHEN("Result is greater than 255")
+	    {
+		const uint8_t val_x = 0xFF;
+		const uint8_t val_y = 0xFF;
+
+		CHECK( val_x + val_y > 255 );
+
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK( m.get_register(reg_x) == val_x );
+		CHECK( m.get_register(reg_y) == val_y );
+
+		m.interpret(instruction);
+		THEN ("Only smallest 8 bits are kept, and carry bit set")
+		{
+		    CHECK(m.get_register(reg_x) == 0xFE );
+		    CHECK(m.get_register(0xF) == 1);
+		}
+	    }
+
 	}
 	/* WHEN ("Issued a 8xy5 - SUB Vx, Vy instruction") {} */
 	/* WHEN ("Issued a 8xy6 - SHR Vx {, Vy} instruction") {} */

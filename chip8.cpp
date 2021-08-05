@@ -183,6 +183,13 @@ namespace Chip8 {
 	else if (first == 8 && nibble == 3) {
 	    set_register(x, get_register(x) ^ get_register(y));
 	}
+	else if (first == 8 && nibble == 4) {
+	    auto result = get_register(x) + get_register(y);
+	    auto vf_res = result > 255 ? 1 : 0;
+
+	    set_register(x, static_cast<uint8_t>(result));
+	    set_register(0xF, vf_res);
+	}
 
     }
 

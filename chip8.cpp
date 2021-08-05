@@ -141,6 +141,9 @@ namespace Chip8 {
 	const uint8_t nibble = instruction & 0x000F;
 	const uint8_t kk = instruction & 0x00FF;
 	const uint16_t addr = instruction & 0x0FFF;
+
+	const auto val_x = get_register(x);
+	const auto val_y = get_register(y);
 	
 	if (instruction == 0x00E0)
 	    clear_display();
@@ -197,6 +200,11 @@ namespace Chip8 {
 
 	    auto vf_res = val_x < val_y ? 1 : 0;
 	    set_register(0xF, 1);
+	}
+	else if (first == 8 & nibble == 6) {
+	    const auto res_vf = (val_x & 0x01) == 0 ? 0 : 1;
+	    set_register(0xF, res_vf);
+	    set_register(x, val_x >> 1);
 	}
 
     }

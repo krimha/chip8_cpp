@@ -682,9 +682,44 @@ SCENARIO("Interpreting instructions") {
 		    CHECK( m.get_register(reg_x) == static_cast<uint8_t>(val_x - val_y) );
 		}
 	    }
+	}
+	WHEN ("Issued a 8xy6 - SHR Vx {, Vy} instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const Instruction instruction = 0x8006 | (reg_x << 8) | (reg_y << 4);
+	    CHECK( instruction == 0x8B46 );
+
+	    AND_WHEN("Least significant byte is 1")
+	    {
+		const uint8_t val_x = 0xFF;
+		m.set_register(reg_x, val_x);
+		CHECK(m.get_register(reg_x) == val_x);
+
+		m.interpret(instruction);
+		THEN ("Set VF")
+		{
+		    CHECK(m.get_register(reg_x) == val_x / 2);
+		    CHECK(m.get_register(0xF) == 1);
+		}
+	    }
+
+	    AND_WHEN("Least significant byte is 0")
+	    {
+		const uint8_t val_x = 0xFE;
+		m.set_register(reg_x, val_x);
+		CHECK(m.get_register(reg_x) == val_x);
+
+		m.interpret(instruction);
+		THEN ("Set VF to 0")
+		{
+		    CHECK(m.get_register(reg_x) == val_x / 2);
+		    CHECK(m.get_register(0xF) == 0);
+		}
+	    }
 
 	}
-	/* WHEN ("Issued a 8xy6 - SHR Vx {, Vy} instruction") {} */
 	/* WHEN ("Issued a 8xy7 - SUBN Vx, Vy instruction") {} */
 	/* WHEN ("Issued a 8xyE - SHL Vx {, Vy} instruction") {} */
 	/* WHEN ("Issued a 9xy0 - SNE Vx, Vy instruction") {} */

@@ -238,7 +238,7 @@ namespace Chip8 {
 		
 		// Move sprite to beginning of line
 		uint64_t row = static_cast<uint64_t>(sprite_row) << (14*4);
-		display[i] = row;
+		display[i] ^= row;
 	    }
 	}
     }

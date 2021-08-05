@@ -811,7 +811,53 @@ SCENARIO("Interpreting instructions") {
 
 
 	}
-	/* WHEN ("Issued a 9xy0 - SNE Vx, Vy instruction") {} */
+	WHEN ("Issued a 9xy0 - SNE Vx, Vy instruction") 
+	{
+	    const uint8_t reg_x = 0xB;
+	    const uint8_t reg_y = 0x4;
+
+	    const Instruction instruction = 0x9000 | (reg_x << 8) | (reg_y << 4);
+	    CHECK( instruction == 0x9B40 );
+
+	    AND_WHEN("The values are equal")
+	    {
+		const uint8_t val_x = 0xFF;
+		const uint8_t val_y = 0xFF;
+		const auto old_pc = m.get_program_counter();
+
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK(m.get_register(reg_x) == val_x);
+		CHECK(m.get_register(reg_y) == val_y);
+
+		m.interpret(instruction);
+		THEN ("Don't skip next instruction")
+		{
+		    CHECK (m.get_program_counter() == old_pc);
+		}
+	    }
+
+	    AND_WHEN("The values are not equal")
+	    {
+		const uint8_t val_x = 0xFF;
+		const uint8_t val_y = 0xFE;
+		const auto old_pc = m.get_program_counter();
+
+		m.set_register(reg_x, val_x);
+		m.set_register(reg_y, val_y);
+
+		CHECK(m.get_register(reg_x) == val_x);
+		CHECK(m.get_register(reg_y) == val_y);
+
+		m.interpret(instruction);
+		THEN ("Skip next instruction")
+		{
+		    CHECK (m.get_program_counter() == old_pc+2);
+		}
+	    }
+
+	}
 	/* WHEN ("Issued a Annn - LD I, addr instruction") {} */
 	/* WHEN ("Issued a Bnnn - JP V0, addr instruction") {} */
 	/* WHEN ("Issued a Cxkk - RND Vx, byte instruction") {} */

@@ -216,7 +216,9 @@ namespace Chip8 {
 	    set_register(0xF, (val_x & 0x80) >> 7);
 	    set_register(x, val_x << 1);
 	}
-
+	else if (first == 9 && nibble == 0) {
+	    program_counter += (val_x == val_y) ? 0 : 2;
+	}
     }
 
     void Chip8Runner::print_registers()

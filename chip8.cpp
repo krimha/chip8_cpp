@@ -236,15 +236,21 @@ namespace Chip8 {
 	    const auto x_pos = val_x % 64;
 	    const auto y_pos = val_y % 32;
 
+	    bool collision = 0;
+
 	    for (uint16_t i=0; i<nibble; ++i) {
 		auto sprite_row = get_memory(get_I_register() + i);
 		
 		// Move sprite to beginning of line
 		uint64_t row = static_cast<uint64_t>(sprite_row) << ((14-x_pos)*4);
-		if (i+y_pos >= display.size())
+		auto curr_row = i+y_pos;
+		if (curr_row >= display.size())
 		    break;
-		display[i+y_pos] ^= row;
+
+		collision |= (row & display[curr_row]) > 0;
+		display[curr_row] ^= row;
 	    }
+	    set_register(0xF, collision ? 1 : 0); 
 	}
     }
 

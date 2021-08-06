@@ -928,6 +928,7 @@ SCENARIO("Interpreting instructions") {
 		    CHECK( m.get_display_row(2) == 0x9000000000000000 );
 		    CHECK( m.get_display_row(3) == 0x9000000000000000 );
 		    CHECK( m.get_display_row(4) == 0xF000000000000000 );
+		    CHECK( m.get_register(0xF) == 0 );
 		}
 
 		THEN ("1 is drawn in the top left")
@@ -939,6 +940,7 @@ SCENARIO("Interpreting instructions") {
 		    CHECK( m.get_display_row(2) == 0x2000000000000000 );
 		    CHECK( m.get_display_row(3) == 0x2000000000000000 );
 		    CHECK( m.get_display_row(4) == 0x7000000000000000 );
+		    CHECK( m.get_register(0xF) == 0 );
 		}
 	    }
 
@@ -955,6 +957,7 @@ SCENARIO("Interpreting instructions") {
 		    CHECK( m.get_display_row(3) == 0x0900000000000000 );
 		    CHECK( m.get_display_row(4) == 0x0900000000000000 );
 		    CHECK( m.get_display_row(5) == 0x0F00000000000000 );
+		    CHECK( m.get_register(0xF) == 0 );
 		}
 	    }
 
@@ -970,6 +973,19 @@ SCENARIO("Interpreting instructions") {
 		    CHECK( m.get_display_row(2) == 0x9000000000000000 );
 		    CHECK( m.get_display_row(3) == 0x9000000000000000 );
 		    CHECK( m.get_display_row(4) == 0xF000000000000000 );
+		    CHECK( m.get_register(0xF) == 0 );
+		}
+	    }
+
+	    AND_WHEN("There is a collision")
+	    {
+		m.set_I_register(0x000);
+		m.interpret(0xD005);
+		CHECK(m.get_register(0xF) == 0);
+		m.interpret(0xD005);
+		THEN ("Register VF is set")
+		{
+		    CHECK(m.get_register(0xF) == 1);
 		}
 	    }
 	}

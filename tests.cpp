@@ -1086,7 +1086,23 @@ SCENARIO("Interpreting instructions") {
 	    }
 
 	}
-	/* WHEN ("Issued a Fx18 - LD ST, Vx instruction") {} */
+	WHEN ("Issued a Fx18 - LD ST, Vx instruction") 
+	{
+	    uint8_t reg = 0xE;
+	    uint8_t val = 0xFA;
+	    m.set_register(reg, val);
+	    CHECK(m.get_register(reg) == val);
+
+	    Instruction instruction = 0xF018 | (reg << 8);
+	    CHECK (instruction == 0xFE18);
+
+	    m.interpret(instruction);
+	    THEN ( "The sound timer is set to val" )
+	    {
+		CHECK(m.get_sound_register() == val);	
+	    }
+
+	}
 	/* WHEN ("Issued a Fx1E - ADD I, Vx instruction") {} */
 	/* WHEN ("Issued a Fx29 - LD F, Vx instruction") {} */
 	/* WHEN ("Issued a Fx33 - LD B, Vx instruction") {} */

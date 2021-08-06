@@ -271,6 +271,9 @@ namespace Chip8 {
 	else if (first == 0xF && kk == 0x15) {
 	    set_delay_register(val_x);
 	}
+	else if (first == 0xF && kk == 0x18) {
+	    set_sound_register(val_x);
+	}
 
     }
 

@@ -913,12 +913,12 @@ SCENARIO("Interpreting instructions") {
 	}
 	WHEN ("Issued a Dxyn - DRW Vx, Vy, nibble instruction")
 	{
-	    AND_WHEN ("We only focus on selecting the sprite")
+	    m.set_I_register(0x000);
+
+	    AND_WHEN ("Only focus on drawing")
 	    {
 		m.set_register(0, 0);
 		m.set_register(1, 0);
-
-
 		THEN ("0 is drawn in in the top left")
 		{
 		    m.set_I_register(0x000);
@@ -939,6 +939,37 @@ SCENARIO("Interpreting instructions") {
 		    CHECK( m.get_display_row(2) == 0x2000000000000000 );
 		    CHECK( m.get_display_row(3) == 0x2000000000000000 );
 		    CHECK( m.get_display_row(4) == 0x7000000000000000 );
+		}
+	    }
+
+	    AND_WHEN("A sprite is at a different coordinate")
+	    {
+		m.set_register(0, 1);
+		m.set_register(1, 1);
+		m.interpret(0xD015);
+
+		THEN ("Sprite is shifted in corresponding x and y directions")
+		{
+		    CHECK( m.get_display_row(1) == 0x0F00000000000000 );
+		    CHECK( m.get_display_row(2) == 0x0900000000000000 );
+		    CHECK( m.get_display_row(3) == 0x0900000000000000 );
+		    CHECK( m.get_display_row(4) == 0x0900000000000000 );
+		    CHECK( m.get_display_row(5) == 0x0F00000000000000 );
+		}
+	    }
+
+	    AND_WHEN("A coordinate is out of bounds")
+	    {
+		m.set_register(0, 64);
+		m.set_register(1, 32);
+		m.interpret(0xD015);
+		THEN ("The coordinate set modulo the screen size")
+		{
+		    CHECK( m.get_display_row(0) == 0xF000000000000000 );
+		    CHECK( m.get_display_row(1) == 0x9000000000000000 );
+		    CHECK( m.get_display_row(2) == 0x9000000000000000 );
+		    CHECK( m.get_display_row(3) == 0x9000000000000000 );
+		    CHECK( m.get_display_row(4) == 0xF000000000000000 );
 		}
 	    }
 	}

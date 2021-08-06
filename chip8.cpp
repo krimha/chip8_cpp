@@ -233,12 +233,17 @@ namespace Chip8 {
 	    set_register(x, dist(mt) & kk);
 	}
 	else if (first == 0xD) {
+	    const auto x_pos = val_x % 64;
+	    const auto y_pos = val_y % 32;
+
 	    for (uint16_t i=0; i<nibble; ++i) {
 		auto sprite_row = get_memory(get_I_register() + i);
 		
 		// Move sprite to beginning of line
-		uint64_t row = static_cast<uint64_t>(sprite_row) << (14*4);
-		display[i] ^= row;
+		uint64_t row = static_cast<uint64_t>(sprite_row) << ((14-x_pos)*4);
+		if (i+y_pos >= display.size())
+		    break;
+		display[i+y_pos] ^= row;
 	    }
 	}
     }

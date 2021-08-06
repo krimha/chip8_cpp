@@ -278,6 +278,10 @@ namespace Chip8 {
 	{
 	    set_I_register(get_I_register() + val_x);
 	}
+	else if (first == 0xF && kk == 0x29)
+	{
+	    set_I_register(5*val_x);
+	}
 
     }
 

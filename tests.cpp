@@ -1120,7 +1120,25 @@ SCENARIO("Interpreting instructions") {
 		CHECK( m.get_I_register() == start_addr + val );
 	    }
 	}
-	/* WHEN ("Issued a Fx29 - LD F, Vx instruction") {} */
+	WHEN ("Issued a Fx29 - LD F, Vx instruction") 
+	{
+	    uint8_t sprite = 0xA;
+	    uint8_t reg = 0xB;
+
+	    m.set_register(reg, sprite);
+	    Instruction instruction = 0xF029 | (reg << 8);
+	    m.interpret(instruction);
+	    THEN( "We are at sprite A" )
+	    {
+		auto I = m.get_I_register();
+		CHECK( m.get_memory(I)   == 0xF0  );
+		CHECK( m.get_memory(I+1) == 0x90 );
+		CHECK( m.get_memory(I+2) == 0xF0 );
+		CHECK( m.get_memory(I+3) == 0x90 );
+		CHECK( m.get_memory(I+4) == 0x90 );
+	    }                                    
+
+	}
 	/* WHEN ("Issued a Fx33 - LD B, Vx instruction") {} */
 	/* WHEN ("Issued a Fx55 - LD [I], Vx instruction") {} */
 	/* WHEN ("Issued a Fx65 - LD Vx, [I] instruction") {} */

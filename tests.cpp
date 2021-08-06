@@ -989,6 +989,7 @@ SCENARIO("Interpreting instructions") {
 		}
 	    }
 	}
+
 	WHEN ("Issued a Ex9E - SKP Vx instruction") 
 	{
 	    uint8_t reg = 0x1;
@@ -1017,7 +1018,37 @@ SCENARIO("Interpreting instructions") {
 		}
 	    }
 	}
-	/* WHEN ("Issued a ExA1 - SKNP Vx instruction") {} */
+
+	WHEN ("Issued a ExA1 - SKNP Vx instruction")
+	{
+	    uint8_t reg = 0x1;
+	    uint8_t key = 0xA;
+	    m.set_register(reg, key);
+	    Instruction instruction = 0xE0A1 | (reg << 8);
+	    CHECK( instruction == 0xE1A1 );
+
+	    AND_WHEN("The key is not pressed")
+	    {
+		m.set_key(key, false);
+		m.interpret(instruction); 
+		THEN ("Program counter is incremented by 2")
+		{
+		    CHECK( m.get_program_counter() == old_pc+2 );
+		}
+	    }
+
+	    AND_WHEN("The key is pressed")
+	    {
+		m.set_key(key, true);
+		m.interpret(instruction); 
+		THEN( "Program counter stays the same" )
+		{
+		    CHECK( m.get_program_counter() == old_pc );
+		}
+	    }
+
+	}
+
 	/* WHEN ("Issued a Fx07 - LD Vx, DT instruction") {} */
 	/* WHEN ("Issued a Fx0A - LD Vx, K instruction") {} */
 	/* WHEN ("Issued a Fx15 - LD DT, Vx instruction") {} */

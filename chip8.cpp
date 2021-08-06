@@ -258,6 +258,10 @@ namespace Chip8 {
 	    if (is_pressed(val_x))
 		program_counter += 2;
 	}
+	else if (first == 0xE && kk == 0xA1) {
+	    if (!is_pressed(val_x))
+		program_counter += 2;
+	}
 
     }
 

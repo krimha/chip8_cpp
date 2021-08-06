@@ -1103,7 +1103,23 @@ SCENARIO("Interpreting instructions") {
 	    }
 
 	}
-	/* WHEN ("Issued a Fx1E - ADD I, Vx instruction") {} */
+	WHEN ("Issued a Fx1E - ADD I, Vx instruction") 
+	{
+	    uint8_t reg = 0xA;
+	    uint8_t val = 0xFE;
+	    m.set_register(reg, val);
+	    CHECK(m.get_register(reg) == val);
+
+	    uint16_t start_addr = 0x123;
+	    m.set_I_register(start_addr);
+	    
+	    Instruction instruction = 0xF01E | (reg << 8);
+	    m.interpret(instruction);
+	    THEN("The value is added to the I register")
+	    {
+		CHECK( m.get_I_register() == start_addr + val );
+	    }
+	}
 	/* WHEN ("Issued a Fx29 - LD F, Vx instruction") {} */
 	/* WHEN ("Issued a Fx33 - LD B, Vx instruction") {} */
 	/* WHEN ("Issued a Fx55 - LD [I], Vx instruction") {} */

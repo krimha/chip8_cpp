@@ -1049,7 +1049,22 @@ SCENARIO("Interpreting instructions") {
 
 	}
 
-	/* WHEN ("Issued a Fx07 - LD Vx, DT instruction") {} */
+	WHEN ("Issued a Fx07 - LD Vx, DT instruction")
+	{
+	    uint8_t reg = 0xE;
+	    uint8_t val = 0xFA;
+	    m.set_register(reg, val);
+	    CHECK(m.get_register(reg) == val);
+
+	    Instruction instruction = 0xF007 | (reg << 8);
+	    CHECK (instruction == 0xFE07);
+
+	    m.interpret(instruction);
+	    THEN ( "The delay timer is set to val" )
+	    {
+		CHECK(m.get_delay_register() == val);	
+	    }
+	}
 	/* WHEN ("Issued a Fx0A - LD Vx, K instruction") {} */
 	/* WHEN ("Issued a Fx15 - LD DT, Vx instruction") {} */
 	/* WHEN ("Issued a Fx18 - LD ST, Vx instruction") {} */

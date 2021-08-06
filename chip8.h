@@ -39,10 +39,14 @@ namespace Chip8 {
 	    uint8_t get_memory(size_t addr) { return memory[addr]; };
 	    uint16_t stack_peek() { return stack[stack_pointer]; }
 	    uint8_t get_stack_pointer() { return stack_pointer; }
+	    uint8_t get_delay_register() { return delay_register; }
+	    uint8_t get_sound_register() { return sound_register; }
 
 	    void set_display_row(size_t row, uint64_t value);
 	    void set_register(uint8_t reg, uint8_t value) { registers[reg] = value; }
 	    void set_I_register(uint16_t addr) { I_register = addr; }
+	    void set_delay_register(uint8_t value) { delay_register = value; }
+	    void set_sound_register(uint8_t value) { sound_register = value; }
 
 	    void set_key(uint8_t key, bool value) { keyboard[key] = value; }
 	    bool is_pressed(uint8_t key) { return keyboard[key]; }

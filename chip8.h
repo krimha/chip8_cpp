@@ -44,6 +44,9 @@ namespace Chip8 {
 	    void set_register(uint8_t reg, uint8_t value) { registers[reg] = value; }
 	    void set_I_register(uint16_t addr) { I_register = addr; }
 
+	    void set_key(uint8_t key, bool value) { keyboard[key] = value; }
+	    bool is_pressed(uint8_t key) { return keyboard[key]; }
+
 	    uint64_t get_display_row(size_t row);
 	    void push_to_stack(uint16_t addr);
 
@@ -53,6 +56,7 @@ namespace Chip8 {
             std::array<uint16_t,16> stack;
 	    std::array<uint8_t,memory_size> memory;
 	    std::array<uint64_t,32> display;
+	    std::array<bool,16> keyboard;
 
             // VF should never be used (used as flag in some programs
             std::array<uint8_t,16> registers;

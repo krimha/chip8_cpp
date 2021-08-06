@@ -52,6 +52,8 @@ namespace Chip8 {
 	for (size_t i=0; i<display.size(); ++i)
 	    display[i] = 0;
 
+	for (size_t i=0; i<keyboard.size(); ++i)
+	    keyboard[i] = 0;
 
         std::array<uint8_t,80> sprites = { 0xF0, 0x90, 0x90, 0x90, 0xF0,
 					 0x20, 0x60, 0x20, 0x20, 0x70, 
@@ -252,6 +254,11 @@ namespace Chip8 {
 	    }
 	    set_register(0xF, collision ? 1 : 0); 
 	}
+	else if (first == 0xE && kk == 0x9E) {
+	    if (is_pressed(val_x))
+		program_counter += 2;
+	}
+
     }
 
     void Chip8Runner::print_registers()

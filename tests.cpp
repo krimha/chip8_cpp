@@ -1053,8 +1053,8 @@ SCENARIO("Interpreting instructions") {
 	{
 	    uint8_t reg = 0xE;
 	    uint8_t val = 0xFA;
-	    m.set_register(reg, val);
-	    CHECK(m.get_register(reg) == val);
+	    m.set_delay_register(val);
+	    CHECK(m.get_delay_register() == val);
 
 	    Instruction instruction = 0xF007 | (reg << 8);
 	    CHECK (instruction == 0xFE07);
@@ -1062,11 +1062,30 @@ SCENARIO("Interpreting instructions") {
 	    m.interpret(instruction);
 	    THEN ( "The delay timer is set to val" )
 	    {
-		CHECK(m.get_delay_register() == val);	
+		CHECK(m.get_register(reg) == val);	
 	    }
 	}
-	/* WHEN ("Issued a Fx0A - LD Vx, K instruction") {} */
-	/* WHEN ("Issued a Fx15 - LD DT, Vx instruction") {} */
+	WHEN ("Issued a Fx0A - LD Vx, K instruction")
+	{
+	    
+	}
+	WHEN ("Issued a Fx15 - LD DT, Vx instruction") 
+	{
+	    uint8_t reg = 0xE;
+	    uint8_t val = 0xFA;
+	    m.set_register(reg, val);
+	    CHECK(m.get_register(reg) == val);
+
+	    Instruction instruction = 0xF015 | (reg << 8);
+	    CHECK (instruction == 0xFE15);
+
+	    m.interpret(instruction);
+	    THEN ( "The delay timer is set to val" )
+	    {
+		CHECK(m.get_delay_register() == val);	
+	    }
+
+	}
 	/* WHEN ("Issued a Fx18 - LD ST, Vx instruction") {} */
 	/* WHEN ("Issued a Fx1E - ADD I, Vx instruction") {} */
 	/* WHEN ("Issued a Fx29 - LD F, Vx instruction") {} */

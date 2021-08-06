@@ -263,6 +263,12 @@ namespace Chip8 {
 		program_counter += 2;
 	}
 	else if (first == 0xF && kk == 0x07) {
+	    set_register(x, get_delay_register());
+	}
+	else if (first == 0xF && kk == 0x0A) {
+	    std::cerr << "Instruction 0xFx0A has not been implemented\n";
+	}
+	else if (first == 0xF && kk == 0x15) {
 	    set_delay_register(val_x);
 	}
 

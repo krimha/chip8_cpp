@@ -30,6 +30,7 @@ int main(int argc, char** argv)
 	try {
 	    text_other = disassemble(rev_endian);
 	} catch (std::exception e) {
+	    // TODO: Write out binary representation (must be sprite?)
 	    text_other = "";
 	}
 

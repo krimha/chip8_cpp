@@ -33,21 +33,48 @@ SCENARIO("Tokenize instruction")
 	    CHECK( split("CLS # This clears the screen") == VS{"CLS"});
 	    CHECK( split("RET   #afsdfasd, ") == VS{"RET"});
 	    CHECK( split("JP 12#,dafdasf asdf") == VS{"JP", "12"});
-	    /* CHECK( split("SNE V1, 5") == VS{"SNE", "V1", "5"}); */
-	    /* CHECK( split("SNE V1, 5      ") == VS{"SNE", "V1", "5"}); */
+	}
+    }
+
+    WHEN ("Instructions constians Label")
+    {
+	THEN ("The label is split normally")
+	{
+	    CHECK (split("JP :HELLO: # hello") == VS{"JP", ":HELLO:"});
 	}
     }
 }
 
-TEST_CASE("Get numbers from tokens", "[numbers]")
+SCENARIO("Get numbers from tokens")
 {
     using VS = std::vector<uint16_t>;
-    REQUIRE( get_numbers({""}) == VS{} );
-    REQUIRE( get_numbers({"CLS"}) == VS{});
-    REQUIRE( get_numbers({"RET"}) == VS{});
-    REQUIRE( get_numbers({"JP", "12"}) == VS{12});
-    REQUIRE( get_numbers({"SNE", "V1", "5"}) == VS{1, 5});
-    REQUIRE( get_numbers({"SNE", "V1", "5"}) == VS{1, 5});
+
+    WHEN ("Tokens contain no labels")
+    {
+	THEN ("The numbers are parsed normally")
+	{
+	    REQUIRE( get_numbers({""}) == VS{} );
+	    REQUIRE( get_numbers({"CLS"}) == VS{});
+	    REQUIRE( get_numbers({"RET"}) == VS{});
+	    REQUIRE( get_numbers({"JP", "12"}) == VS{12});
+	    REQUIRE( get_numbers({"SNE", "V1", "5"}) == VS{1, 5});
+	    REQUIRE( get_numbers({"SNE", "V1", "5"}) == VS{1, 5});
+	}
+    }
+
+    WHEN ("Tokens contain labels")
+    {
+	THEN ("We must lookup value")
+	{
+	    CHECK ( get_numbers({"JP", ":HERE:"}, {{":HERE:", 100}}) == VS{100} );
+	}
+
+	AND_WHEN ("Map does not contain label") {
+	    THEN ("Function throws") {
+		CHECK_THROWS ( get_numbers({"JP", ":HERE:"}, {}));
+	    }
+	}
+    }
 }
 
 TEST_CASE("Test safe_match", "[safe_match]")

@@ -25,16 +25,30 @@ int main(int argc, char** argv)
 	return 1;
     }
 
-    size_t counter = 0x200;
+    size_t addr = 0x200;
     Instruction instruction; 
 
     std::string line;
-    while (getline(inputfile, line)) {
-	if (line.size() > 1 && line[0] == '#')
-	    continue;
 
-	/* std::cout << std::hex << assemble(line) << '\t' << line << '\n'; */
-	Instruction instruction = assemble(line);
+    std::unordered_map<std::string,size_t> labels;
+    std::vector<std::string> lines;
+
+    while (getline(inputfile, line)) {
+	// Detect comments
+	
+	if (line[line.find_first_not_of(' ')] == '#') {
+	    continue;
+	}
+	else if (line[line.find_first_not_of(' ')] == ':') {
+	    labels.insert({line, addr}); 
+	} else {
+	    lines.push_back(line);
+	    addr += 2;
+	}
+    }
+
+    for (const auto& line : lines) {
+	Instruction instruction = assemble(line, labels);
 	
 	uint16_t rev_endian = ((instruction & 0xFF00) >> 8) | ((instruction & 0x00FF) << 8);
 

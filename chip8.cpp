@@ -673,14 +673,19 @@ namespace Chip8 {
 
 
 
-    Instruction assemble(std::string_view instruction)
+    Instruction assemble(std::string_view instruction, const std::unordered_map<std::string,size_t>& labels)
     {
-
-
         auto tokens = split(instruction);
-        auto numbers = get_numbers(tokens);
+	
+	if (tokens.size() == 0) {
+	    std::cerr << "EMPTY: " << instruction << '\n';
+	}
+
+        auto numbers = get_numbers(tokens, labels);
         auto name = get_unique_name(tokens);
         auto parts = fields_map.at(name.c_str());
+
+	
 
         Instruction result = base_map.at(name.c_str());
 
@@ -788,7 +793,8 @@ namespace Chip8 {
 
 
 
-    std::vector<Instruction> get_numbers(const std::vector<std::string>& tokens)
+    std::vector<Instruction> get_numbers(const std::vector<std::string>& tokens,
+					 const std::unordered_map<std::string,size_t>& label_map)
     {
         std::vector<Instruction> result;
 
@@ -801,7 +807,9 @@ namespace Chip8 {
                 uint16_t num;
                 std::istringstream(token.substr(1)) >> num;
                 result.push_back(num);
-            }
+	    } else if (token[0] == ':' && token[token.size()-1] == ':') {
+		result.push_back(label_map.at(token));	
+	    }
         }
 
         return result;

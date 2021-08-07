@@ -115,11 +115,11 @@ namespace Chip8 {
 
 
     // Free functions
-    Instruction assemble(std::string_view instruction);
+    Instruction assemble(std::string_view instruction, const std::unordered_map<std::string,size_t>& label_map={});
     std::string disassemble(Instruction instuction);
     std::string get_name_from_hex(Instruction instruction);
     std::vector<std::string> split(std::string_view instruction);
-    std::vector<Instruction> get_numbers(const std::vector<std::string>& tokens);
+    std::vector<Instruction> get_numbers(const std::vector<std::string>& tokens, const std::unordered_map<std::string,size_t>& label_map={});
 
     // Takes tokenized instruction
     std::string get_unique_name(const std::vector<std::string>& instruction);

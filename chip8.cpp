@@ -295,6 +295,10 @@ namespace Chip8 {
 	    for (size_t i=0; i<=x; ++i) 
 		set_memory(get_I_register()+i, get_register(i));
 	}
+	else if (first == 0xF && kk == 0x65) {
+	    for (size_t i=0; i<=x; ++i)
+		set_register(i, get_memory(get_I_register()+i));
+	}
     }
 
     void Chip8Runner::print_registers()

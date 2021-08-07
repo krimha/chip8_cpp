@@ -1182,7 +1182,25 @@ SCENARIO("Interpreting instructions") {
 	    }
 	    
 	}
-	/* WHEN ("Issued a Fx65 - LD Vx, [I] instruction") {} */
+
+	WHEN ("Issued a Fx65 - LD Vx, [I] instruction") 
+	{
+	    const uint16_t addr = 0x123;
+	    const uint8_t max_reg = 0xB;
+
+	    m.set_I_register(addr);
+	    for (size_t i=0; i<=max_reg; ++i)
+		m.set_memory(addr+i, i);
+
+	    Instruction instruction = 0xF065 | (max_reg << 8);
+	    m.interpret(instruction);
+	    THEN ("Registers V0 - Vx are read from memory, starting at I")
+	    {
+		for (size_t i=0; i<=max_reg; ++i) {
+		    CHECK( m.get_register(i) == i );
+		}
+	    }
+	}
     }
 }
 

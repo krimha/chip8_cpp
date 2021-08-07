@@ -405,6 +405,7 @@ namespace Chip8 {
     void Chip8Runner::run()
     {
         bool closed = false;
+	bool advance = false;
 
 
         while (!closed) {
@@ -416,15 +417,16 @@ namespace Chip8 {
                         closed = true;
                         break;
 			// Handle keypresses
-                    /* case SDL_KEYDOWN: */
-                    /*     auto sc_code = event.key.keysym.scancode; */
-                    /*     if (scan_map.find(sc_code) != scan_map.end()) { */
-                    /*         auto symbol = scan_map.at(sc_code); */
-                    /*         render_symbol(symbol); */ 
-                    /*     } */
+		    case SDL_KEYDOWN:
+			if (event.key.keysym.scancode == SDL_SCANCODE_RETURN)
+			    advance = true;
                 }
             }
 
+	    if (!advance) 
+		continue;
+
+	    advance = false;
 	    const auto part1 = get_memory(get_program_counter());
 	    const auto part2 = get_memory(get_program_counter()+1);
 	    const Instruction instruction = (part1 << 8) | part2;
@@ -433,19 +435,11 @@ namespace Chip8 {
 	    interpret(instruction);
 	    print_registers();
 
-	    /* std::cerr << "PC: " << std::hex << get_program_counter() << " Instruction: " << instruction << '\n'; */
-	    /* std::cerr << '\n'; */
-	    /* for (size_t i=0; i<32; ++i) { */
-		/* std::cerr << std::hex << get_display_row(i) << '\n'; */
-	    /* } */
-	    /* std::cerr << '\n'; */
-	    
-	    // If the PC has not skipped
 	    render_display();
 
-	    const float freq = 60.0f;
-	    const int period = static_cast<int>(1.0f / freq * 1000);
-	    std::this_thread::sleep_for(std::chrono::milliseconds(period));
+	    /* const float freq = 60.0f; */
+	    /* const int period = static_cast<int>(1.0f / freq * 1000); */
+	    /* std::this_thread::sleep_for(std::chrono::milliseconds(period)); */
         }
     }
 

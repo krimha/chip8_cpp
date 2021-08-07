@@ -22,6 +22,7 @@ int main(int argc, char** argv)
     size_t counter = 0x200;
     Instruction instruction; 
     while (inputfile.good() && !inputfile.eof()) {
+
 	inputfile.read((char*)(&instruction), sizeof(Instruction)); 
 	uint16_t rev_endian = ((instruction & 0x00ff) << 8 ) | ((instruction & 0xff00) >> 8);
 

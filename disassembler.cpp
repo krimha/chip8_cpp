@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
+#include <bitset>
 
 #include "chip8.h"
 
@@ -29,13 +30,19 @@ int main(int argc, char** argv)
 	std::string text_other;
 	try {
 	    text_other = disassemble(rev_endian);
+	    std::cout << std::dec << counter << ' ' << std::hex << rev_endian << ' ' << text_other << '\n';
+	    counter += 2;
 	} catch (std::exception e) {
 	    // TODO: Write out binary representation (must be sprite?)
-	    text_other = "";
+	    auto part1 = (rev_endian & 0xff00) >> 8;
+	    auto part2 = (rev_endian & 0x00ff);
+
+	    std::cout << std::dec << counter << ' ' << std::hex << part1 << ' ' << std::bitset<8>(part1) << '\n';
+	    counter++;
+	    std::cout << std::dec << counter << ' ' << std::hex << part2 << ' ' << std::bitset<8>(part2) << '\n';
+	    counter++;
 	}
 
-	std::cout << std::hex << counter << ' ' << std::hex << rev_endian << ' ' << text_other << '\n';
-	counter += 2;
     }
     return 0;
 }

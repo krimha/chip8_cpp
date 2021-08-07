@@ -416,7 +416,8 @@ namespace Chip8 {
                     case SDL_QUIT:
                         closed = true;
                         break;
-			// Handle keypresses
+
+		    // Handle keypresses
 		    case SDL_KEYDOWN:
 			if (event.key.keysym.scancode == SDL_SCANCODE_RETURN)
 			    advance = true;
@@ -437,9 +438,16 @@ namespace Chip8 {
 
 	    render_display();
 
-	    /* const float freq = 60.0f; */
-	    /* const int period = static_cast<int>(1.0f / freq * 1000); */
-	    /* std::this_thread::sleep_for(std::chrono::milliseconds(period)); */
+	    const auto dt = get_delay_register();
+	    const auto st = get_sound_register();
+	    if (dt > 0)
+		set_delay_register(dt-1);
+	    if (st > 0)
+		set_sound_register(st-1);
+
+	    const float freq = 60.0f;
+	    const int period = static_cast<int>(1.0f / freq * 1000);
+	    std::this_thread::sleep_for(std::chrono::milliseconds(period));
         }
     }
 
@@ -498,7 +506,7 @@ namespace Chip8 {
             { 0xF, { 0xF0, 0x80, 0xF0, 0x80, 0x80 }}};
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        auto sprite = sprites.at(symbol);
+	auto sprite = sprites.at(symbol);
         for (int row=0; row<sprite.size(); ++row) {
             auto cursor = 0x80;
             const auto x = sprite[row];
@@ -679,9 +687,7 @@ namespace Chip8 {
 	
         auto numbers = get_numbers(tokens, labels);
         auto name = get_unique_name(tokens);
-        auto parts = fields_map.at(name.c_str());
-
-	
+	auto parts = fields_map.at(name.c_str());
 
         Instruction result = base_map.at(name.c_str());
 

@@ -168,17 +168,17 @@ TEST_CASE("Instruction to name", "[instr-name]")
     REQUIRE( get_unique_name(split("LD Vx, [I]"        )) == "LDVxI"     );
 }
 
-/* namespace Catch { */
+namespace Catch {
 
-/*     template<> */
-/*     struct StringMaker<Chip8::Instruction> { */
-/* 	static std::string convert(Chip8::Instruction const& value) { */
-/* 	    std::stringstream stream; */
-/* 	    stream << std::hex << std::showbase << std::uppercase << value; */
-/* 	    return stream.str(); */
-/* 	} */
-/*     }; */
-/* } */
+    template<>
+    struct StringMaker<Chip8::Instruction> {
+	static std::string convert(Chip8::Instruction const& value) {
+	    std::stringstream stream;
+	    stream << std::hex << std::showbase << std::uppercase << value;
+	    return stream.str();
+	}
+    };
+}
 
 TEST_CASE ("Assemble single instruction", "[asm-instr]")
 {
@@ -207,8 +207,8 @@ TEST_CASE ("Assemble single instruction", "[asm-instr]")
     CHECK( assemble("JP V0, 291")     == 0xB123); //  "JPV0addr" 
     CHECK( assemble("RND V4, 244")    == 0xC4F4); //  "RND"      
     CHECK( assemble("DRW V3, V4, 10") == 0xD34A); //  "DRW"      
-    CHECK( assemble("SKP V10")        == 0xEA9E); //  "SKP"      
-    CHECK( assemble("SKNP V10")       == 0xEAA1); //  "SKNP"     
+    CHECK( assemble("SKP VA")        == 0xEA9E); //  "SKP"      
+    CHECK( assemble("SKNP VA")       == 0xEAA1); //  "SKNP"     
     CHECK( assemble("LD V4, DT")      == 0xF407); //  "LDVxDT"   
     CHECK( assemble("LD V4, K")       == 0xF40A); //  "LDVxK"    
     CHECK( assemble("LD DT, V4")      == 0xF415); //  "LDDTVx"   
@@ -287,8 +287,8 @@ TEST_CASE ("Disassemble single instruction", "[dasm-instr]")
     CHECK( disassemble(0xB123) == "JP V0, 291"); //  "JPV0addr" 
     CHECK( disassemble(0xC4F4) == "RND V4, 244"); //  "RND"      
     CHECK( disassemble(0xD34A) == "DRW V3, V4, 10"); //  "DRW"      
-    CHECK( disassemble(0xEA9E) == "SKP V10"); //  "SKP"      
-    CHECK( disassemble(0xEAA1) == "SKNP V10"); //  "SKNP"     
+    CHECK( disassemble(0xEA9E) == "SKP VA"); //  "SKP"      
+    CHECK( disassemble(0xEAA1) == "SKNP VA"); //  "SKNP"     
     CHECK( disassemble(0xF407) == "LD V4, DT"); //  "LDVxDT"   
     CHECK( disassemble(0xF40A) == "LD V4, K"); //  "LDVxK"    
     CHECK( disassemble(0xF415) == "LD DT, V4"); //  "LDDTVx"   
@@ -328,8 +328,8 @@ TEST_CASE ("Test instructions", "[instr]")
     CHECK( disassemble(0xB123) == "JP V0, 291"); //  "JPV0addr" 
     CHECK( disassemble(0xC4F4) == "RND V4, 244"); //  "RND"      
     CHECK( disassemble(0xD34A) == "DRW V3, V4, 10"); //  "DRW"      
-    CHECK( disassemble(0xEA9E) == "SKP V10"); //  "SKP"      
-    CHECK( disassemble(0xEAA1) == "SKNP V10"); //  "SKNP"     
+    CHECK( disassemble(0xEA9E) == "SKP VA"); //  "SKP"      
+    CHECK( disassemble(0xEAA1) == "SKNP VA"); //  "SKNP"     
     CHECK( disassemble(0xF407) == "LD V4, DT"); //  "LDVxDT"   
     CHECK( disassemble(0xF40A) == "LD V4, K"); //  "LDVxK"    
     CHECK( disassemble(0xF415) == "LD DT, V4"); //  "LDDTVx"   

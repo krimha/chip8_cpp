@@ -677,10 +677,6 @@ namespace Chip8 {
     {
         auto tokens = split(instruction);
 	
-	if (tokens.size() == 0) {
-	    std::cerr << "EMPTY: " << instruction << '\n';
-	}
-
         auto numbers = get_numbers(tokens, labels);
         auto name = get_unique_name(tokens);
         auto parts = fields_map.at(name.c_str());
@@ -748,14 +744,23 @@ namespace Chip8 {
 	// Alternate between the two arrays
 	size_t literal_index = 0;
 	size_t field_index = 0;
+	bool is_v = false;
 	while (literal_index < literals.size() || field_index < fields.size()) {
+	    is_v = false;
 	    if (literal_index < literals.size()) {
-		ss << literals[literal_index];	
+		auto s = literals[literal_index];
+		ss << s;	
+		if (s[s.size()-1] == 'V')
+		    is_v = true;
 		++literal_index;
 	    }
 
 	    if (field_index < fields.size()) {
-		ss << get_field(instruction, fields[field_index]);
+		const auto& field = get_field(instruction, fields[field_index]);
+		if (is_v)
+		    ss << std::uppercase <<  std::hex << field << std::dec;
+		else
+		    ss << field;
 		++field_index;
 	    }
 	}
@@ -804,8 +809,18 @@ namespace Chip8 {
                 std::istringstream(token) >> num;
                 result.push_back(num);
             } else if (token[0] == 'V') {
-                uint16_t num;
-                std::istringstream(token.substr(1)) >> num;
+		// Throw if invalid
+		if ((token.size() > 2 || token.size() == 1) 
+			|| !((token[1] >= '0' && token[1] <= '9') || (token[1] >= 'A' && token[1] <= 'F'))) {
+		    throw std::runtime_error("V token is not valid");
+		}
+
+		uint16_t num;
+		if (token[1] >= 'A' && token[1] <= 'F') {
+		    num = token[1] - 'A' + 10;
+		} else { // Treat it like normal number
+		    std::istringstream(token.substr(1)) >> num;
+		}
                 result.push_back(num);
 	    } else if (token[0] == ':' && token[token.size()-1] == ':') {
 		result.push_back(label_map.at(token));	

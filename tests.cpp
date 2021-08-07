@@ -323,6 +323,7 @@ TEST_CASE("Clear display", "[clear-display]")
     
 }
 
+// TODO: CHECK that the jumped flag is set correctly
 SCENARIO("Interpreting instructions") {
 
     GIVEN ("A default State") {
@@ -340,6 +341,7 @@ SCENARIO("Interpreting instructions") {
 	    THEN ("The program counter matches the address from the top of the stack") 
 	    {
 		CHECK(m.get_program_counter() == addr);
+		CHECK(!m.jumped());
 	    }
 	}
 
@@ -349,6 +351,7 @@ SCENARIO("Interpreting instructions") {
 	    THEN ("The program counter matches the address") 
 	    {
 		CHECK(m.get_program_counter() == addr);
+		CHECK(m.jumped());
 	    }
 	}
 
@@ -1202,6 +1205,24 @@ SCENARIO("Interpreting instructions") {
 	    }
 	}
     }
+}
+
+TEST_CASE ("Missing test")
+{
+    Chip8State m;
+
+    m.interpret(0x6A0F);
+    CHECK(m.get_register(0xA) == 0x0F);
+
+    m.interpret(0x6BF1);
+    CHECK(m.get_register(0xB) == 0xF1);
+
+    m.interpret(0x8AB2);
+    CHECK (m.get_register(0xA) == 0x1 );
+
+    const auto old_pc = m.get_program_counter();
+    m.interpret(0x3A01);
+    CHECK(m.get_program_counter() == old_pc+2);
 }
 
 

@@ -7,6 +7,8 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 #include <ncurses.h>
 
@@ -38,6 +40,7 @@ namespace Chip8 {
 	, program_counter{0x200}
 	, stack_pointer{0}
 	, dist{0, 255}
+	, jumped_{false}
     {
 
 	for (size_t i=0; i<registers.size(); ++i)
@@ -107,7 +110,7 @@ namespace Chip8 {
 	display[row] = value;
     }
 
-    uint64_t Chip8State::get_display_row(size_t row)
+    uint64_t Chip8State::get_display_row(size_t row) const
     {
 	return display[row];
     }
@@ -150,16 +153,24 @@ namespace Chip8 {
 
 	const auto val_x = get_register(x);
 	const auto val_y = get_register(y);
+
+	const auto old_pc = get_program_counter();
+
+	set_jumped(false);
 	
 	if (instruction == 0x00E0)
 	    clear_display();
-	else if (instruction == 0x00EE)
+	else if (instruction == 0x00EE) {
 	    subroutine_return();
-	else if (first == 1)
+	}
+	else if (first == 1) {
 	    jump_to_addr(addr);
+	    set_jumped(true);
+	}
 	else if (first == 2) { // CALL addr
 	    push_to_stack(program_counter);
 	    program_counter = addr;
+	    set_jumped(true);
 	}
 	else if (first == 3) { // SE Vx, byte
 	    if (registers[x] == kk)
@@ -230,6 +241,7 @@ namespace Chip8 {
 	}
 	else if (first == 0xB) {
 	    program_counter = addr + get_register(0);
+	    set_jumped(true);
 	}
 	else if (first == 0xC) {
 	    set_register(x, dist(mt) & kk);
@@ -300,6 +312,8 @@ namespace Chip8 {
 		set_register(i, get_memory(get_I_register()+i));
 	}
     }
+
+
 
     void Chip8Runner::print_registers()
     {
@@ -392,7 +406,6 @@ namespace Chip8 {
     {
         bool closed = false;
 
-	print_registers();
 
         while (!closed) {
             SDL_Event event;
@@ -402,16 +415,37 @@ namespace Chip8 {
                     case SDL_QUIT:
                         closed = true;
                         break;
-
-                        // Handle keypresses
-                    case SDL_KEYDOWN:
-                        auto sc_code = event.key.keysym.scancode;
-                        if (scan_map.find(sc_code) != scan_map.end()) {
-                            auto symbol = scan_map.at(sc_code);
-                            render_symbol(symbol); 
-                        }
+			// Handle keypresses
+                    /* case SDL_KEYDOWN: */
+                    /*     auto sc_code = event.key.keysym.scancode; */
+                    /*     if (scan_map.find(sc_code) != scan_map.end()) { */
+                    /*         auto symbol = scan_map.at(sc_code); */
+                    /*         render_symbol(symbol); */ 
+                    /*     } */
                 }
             }
+
+	    const auto part1 = get_memory(get_program_counter());
+	    const auto part2 = get_memory(get_program_counter()+1);
+	    const Instruction instruction = (part1 << 8) | part2;
+	    set_program_counter(get_program_counter() + 2);
+
+	    interpret(instruction);
+	    print_registers();
+
+	    /* std::cerr << "PC: " << std::hex << get_program_counter() << " Instruction: " << instruction << '\n'; */
+	    /* std::cerr << '\n'; */
+	    /* for (size_t i=0; i<32; ++i) { */
+		/* std::cerr << std::hex << get_display_row(i) << '\n'; */
+	    /* } */
+	    /* std::cerr << '\n'; */
+	    
+	    // If the PC has not skipped
+	    render_display();
+
+	    const float freq = 60.0f;
+	    const int period = static_cast<int>(1.0f / freq * 1000);
+	    std::this_thread::sleep_for(std::chrono::milliseconds(period));
         }
     }
 
@@ -423,6 +457,27 @@ namespace Chip8 {
         SDL_Quit();
 
 	endwin();
+    }
+
+
+    void Chip8Runner::render_display()
+    {
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+	// TODO: Don't hardcode width and height
+	for (int row=0; row<32; ++row) {
+	    uint64_t cursor = 0x8000000000000000;
+	    for (int col=0; col<64; ++col) {
+		if ((cursor & get_display_row(row)) == cursor) {
+		    SDL_RenderDrawPoint(renderer, col, row);
+		    /* std::cerr << "Hit at " << std::dec << row << ' ' << col << '\n'; */
+		}
+		cursor >>= 1;	
+	    }
+	}
+        SDL_RenderPresent(renderer);
     }
 
 

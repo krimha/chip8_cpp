@@ -9,15 +9,34 @@
 
 using namespace Chip8;
 
-TEST_CASE("Tokenize instruction", "[tokenize-intr]")
+SCENARIO("Tokenize instruction")
 {
     using VS = std::vector<std::string>;
-    REQUIRE( split("") == VS{} );
-    REQUIRE( split("CLS") == VS{"CLS"});
-    REQUIRE( split("RET") == VS{"RET"});
-    REQUIRE( split("JP 12") == VS{"JP", "12"});
-    REQUIRE( split("SNE V1, 5") == VS{"SNE", "V1", "5"});
-    REQUIRE( split("SNE V1, 5      ") == VS{"SNE", "V1", "5"});
+
+    WHEN ("Instructions contains no comment")
+    {
+	THEN ("The string is split at whitespace and comma")
+	{
+	    CHECK( split("") == VS{} );
+	    CHECK( split("CLS") == VS{"CLS"});
+	    CHECK( split("RET") == VS{"RET"});
+	    CHECK( split("JP 12") == VS{"JP", "12"});
+	    CHECK( split("SNE V1, 5") == VS{"SNE", "V1", "5"});
+	    CHECK( split("SNE V1, 5      ") == VS{"SNE", "V1", "5"});
+	}
+    }
+
+    WHEN ("Instructions contains comment")
+    {
+	THEN ("The comment is excluded")
+	{
+	    CHECK( split("CLS # This clears the screen") == VS{"CLS"});
+	    CHECK( split("RET   #afsdfasd, ") == VS{"RET"});
+	    CHECK( split("JP 12#,dafdasf asdf") == VS{"JP", "12"});
+	    /* CHECK( split("SNE V1, 5") == VS{"SNE", "V1", "5"}); */
+	    /* CHECK( split("SNE V1, 5      ") == VS{"SNE", "V1", "5"}); */
+	}
+    }
 }
 
 TEST_CASE("Get numbers from tokens", "[numbers]")

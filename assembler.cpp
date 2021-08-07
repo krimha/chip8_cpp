@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
     std::string line;
     while (getline(inputfile, line)) {
-	if (line.size() > 2 && line[0] == '/' && line[1] == '/')
+	if (line.size() > 1 && line[0] == '#')
 	    continue;
 
 	/* std::cout << std::hex << assemble(line) << '\t' << line << '\n'; */

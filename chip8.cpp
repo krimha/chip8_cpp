@@ -768,9 +768,17 @@ namespace Chip8 {
                     result.push_back(item);
                 item.clear();
                 continue;
-            } else {
+	    } else if (sym == '#') {
+		if (item.size() > 0)
+		    result.push_back(item);
+		item.clear();
+		break;
+	    } else {
                 item.push_back(sym);
             }
+
+	    // Stop parsing if we hit the comment token.
+	    // Clear so it is not added when we break
         }
         if (item.size() > 0)
             result.push_back(item);

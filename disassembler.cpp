@@ -33,10 +33,8 @@ int main(int argc, char** argv)
 	    text_other = "";
 	}
 
-	std::cout << std::dec << counter << ' ' << std::hex << rev_endian << ' ' << text_other << '\n';
+	std::cout << std::hex << counter << ' ' << std::hex << rev_endian << ' ' << text_other << '\n';
 	counter += 2;
     }
-
-    std::cout << filename << '\n';
     return 0;
 }

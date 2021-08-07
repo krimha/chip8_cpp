@@ -47,6 +47,7 @@ namespace Chip8 {
 	    void set_I_register(uint16_t addr) { I_register = addr; }
 	    void set_delay_register(uint8_t value) { delay_register = value; }
 	    void set_sound_register(uint8_t value) { sound_register = value; }
+	    void set_memory(uint16_t addr, uint8_t value) { memory[addr] = value; }
 
 	    void set_key(uint8_t key, bool value) { keyboard[key] = value; }
 	    bool is_pressed(uint8_t key) { return keyboard[key]; }

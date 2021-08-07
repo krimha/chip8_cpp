@@ -282,7 +282,19 @@ namespace Chip8 {
 	{
 	    set_I_register(5*val_x);
 	}
+	else if (first == 0xF && kk == 0x33) {
+	    const auto hundreds = val_x / 100;
+	    const auto tens = (val_x - hundreds*100) / 10;
+	    const auto ones = (val_x - hundreds*100 - tens*10);
 
+	    set_memory(get_I_register(), hundreds);
+	    set_memory(get_I_register()+1, tens);
+	    set_memory(get_I_register()+2, ones);
+	}
+	else if (first == 0xF && kk == 0x55) {
+	    for (size_t i=0; i<=x; ++i) 
+		set_memory(get_I_register()+i, get_register(i));
+	}
     }
 
     void Chip8Runner::print_registers()

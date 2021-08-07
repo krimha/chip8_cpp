@@ -1137,10 +1137,51 @@ SCENARIO("Interpreting instructions") {
 		CHECK( m.get_memory(I+3) == 0x90 );
 		CHECK( m.get_memory(I+4) == 0x90 );
 	    }                                    
-
 	}
-	/* WHEN ("Issued a Fx33 - LD B, Vx instruction") {} */
-	/* WHEN ("Issued a Fx55 - LD [I], Vx instruction") {} */
+
+	WHEN ("Issued a Fx33 - LD B, Vx instruction")
+	{
+	    uint8_t reg = 0xA;
+	    uint8_t val = 123;
+	    uint16_t addr = 0x123;
+
+	    m.set_register(reg, val);
+	    m.set_I_register(addr);
+
+	    Instruction instruction = 0xF033 | (reg << 8);
+	    m.interpret(instruction);
+
+	    THEN ("The BCD is stored starting at I")
+	    {
+		CHECK( m.get_memory(addr)   == 1 );
+		CHECK( m.get_memory(addr+1) == 2 );
+		CHECK( m.get_memory(addr+2) == 3 );
+	    }
+	}
+	WHEN ("Issued a Fx55 - LD [I], Vx instruction")
+	{
+	    const uint16_t addr = 0x123;
+	    const uint8_t max_reg = 0xB;
+
+	    m.set_I_register(addr);
+	    for (size_t i=0; i<=max_reg; ++i)
+		m.set_register(i, i);
+
+
+	    CHECK(m.get_I_register() == addr);
+	    for (size_t i=0; i<max_reg; ++i)
+		CHECK(m.get_register(i) == i);
+
+	    Instruction instruction = 0xF055 | (max_reg << 8);
+	    m.interpret(instruction);
+	    THEN ("Registers V0 - Vx is placed in memory")
+	    {
+		for (size_t i=0; i<=max_reg; ++i) {
+		    CHECK( m.get_memory(m.get_I_register()+i) == i );
+		}
+	    }
+	    
+	}
 	/* WHEN ("Issued a Fx65 - LD Vx, [I] instruction") {} */
     }
 }

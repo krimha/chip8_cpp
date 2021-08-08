@@ -249,14 +249,14 @@ namespace Chip8 {
 		    const auto x = x_pos + dx;
 		    const auto y = y_pos + i;
 
-		    if (x > 64)
+		    if (x >= 64)
 			continue;
-		    if (y > 32)
+		    if (y >= 32)
 			continue;
 
 		    const auto sprite_val = ((sprite_row & cursor) > 0) ? true : false;
 		    collision |= (sprite_val && get_display(x, y));
-		    set_display(x, y, sprite_val & get_display(x, y));
+		    set_display(x, y, sprite_val ^ get_display(x, y));
 		    
 		    cursor >>= 1;
 		}

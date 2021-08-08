@@ -256,7 +256,7 @@ namespace Chip8 {
 		auto sprite_row = get_memory(get_I_register() + i);
 		
 		// Move sprite to beginning of line
-		uint64_t row = static_cast<uint64_t>(sprite_row) << ((14-x_pos)*4);
+		uint64_t row = static_cast<uint64_t>(sprite_row) << (14*4 - x_pos);
 		auto curr_row = i+y_pos;
 		if (curr_row >= display.size())
 		    break;
@@ -424,8 +424,8 @@ namespace Chip8 {
                 }
             }
 
-	    if (!advance) 
-		continue;
+	    /* if (!advance) */ 
+		/* continue; */
 
 	    advance = false;
 	    const auto part1 = get_memory(get_program_counter());

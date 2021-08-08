@@ -369,7 +369,6 @@ TEST_CASE("Clear display", "[clear-display]")
     
 }
 
-// TODO: CHECK that the jumped flag is set correctly
 SCENARIO("Interpreting instructions") {
 
     GIVEN ("A default State") {
@@ -387,7 +386,6 @@ SCENARIO("Interpreting instructions") {
 	    THEN ("The program counter matches the address from the top of the stack") 
 	    {
 		CHECK(m.get_program_counter() == addr);
-		CHECK(!m.jumped());
 	    }
 	}
 
@@ -397,7 +395,6 @@ SCENARIO("Interpreting instructions") {
 	    THEN ("The program counter matches the address") 
 	    {
 		CHECK(m.get_program_counter() == addr);
-		CHECK(m.jumped());
 	    }
 	}
 

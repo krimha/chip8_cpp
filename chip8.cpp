@@ -40,7 +40,7 @@ namespace Chip8 {
 	, program_counter{0x200}
 	, stack_pointer{0}
 	, dist{0, 255}
-	, jumped_{false}
+	, waiting{false}
     {
 
 	for (size_t i=0; i<registers.size(); ++i)
@@ -156,7 +156,6 @@ namespace Chip8 {
 
 	const auto old_pc = get_program_counter();
 
-	set_jumped(false);
 	
 	if (instruction == 0x00E0)
 	    clear_display();
@@ -165,12 +164,10 @@ namespace Chip8 {
 	}
 	else if (first == 1) {
 	    jump_to_addr(addr);
-	    set_jumped(true);
 	}
 	else if (first == 2) { // CALL addr
 	    push_to_stack(program_counter);
 	    program_counter = addr;
-	    set_jumped(true);
 	}
 	else if (first == 3) { // SE Vx, byte
 	    if (registers[x] == kk)
@@ -241,7 +238,6 @@ namespace Chip8 {
 	}
 	else if (first == 0xB) {
 	    program_counter = addr + get_register(0);
-	    set_jumped(true);
 	}
 	else if (first == 0xC) {
 	    set_register(x, dist(mt) & kk);
@@ -278,7 +274,7 @@ namespace Chip8 {
 	    set_register(x, get_delay_register());
 	}
 	else if (first == 0xF && kk == 0x0A) {
-	    std::cerr << "Instruction 0xFx0A has not been implemented\n";
+	    wait_for_input();
 	}
 	else if (first == 0xF && kk == 0x15) {
 	    set_delay_register(val_x);
@@ -362,6 +358,25 @@ namespace Chip8 {
 
 	curr_y += 2;
 
+	for (size_t i=0; i<=0xF; ++i) {
+	    std::stringstream ss;
+	    ss << std::setfill(' ') << std::setw(2) << std::hex << std::uppercase << static_cast<int>(i);
+	    wmove(window_, curr_y, start_x+i*padding);
+	    waddstr(window_, ss.str().c_str());
+	}
+
+	curr_y += 1;
+
+	for (size_t i=0; i<=0xF; ++i) {
+	    std::stringstream ss;
+	    ss << std::setfill(' ') << std::setw(2) << is_pressed(i);
+	    wmove(window_, curr_y, start_x+i*padding);
+	    waddstr(window_, ss.str().c_str());
+	}
+	
+
+	curr_y += 2;
+
 	const size_t y_mem_start = curr_y;
 
 	const size_t mem_start = 0x200; 
@@ -387,7 +402,7 @@ namespace Chip8 {
     }
 
     Chip8Runner::Chip8Runner() : Chip8State::Chip8State()
-			       , window_{initscr()}
+			       /* , window_{initscr()} */
     {
         if (SDL_Init(SDL_INIT_VIDEO) < 0)
             return;
@@ -405,8 +420,6 @@ namespace Chip8 {
     void Chip8Runner::run()
     {
         bool closed = false;
-	bool advance = false;
-
 
         while (!closed) {
             SDL_Event event;
@@ -417,17 +430,32 @@ namespace Chip8 {
                         closed = true;
                         break;
 
-		    // Handle keypresses
+			// Handle keypresses
 		    case SDL_KEYDOWN:
-			if (event.key.keysym.scancode == SDL_SCANCODE_RETURN)
-			    advance = true;
-                }
-            }
+			{
+			    /* std::cerr << "Button pressed or released\n"; */
+			    const auto scancode = event.key.keysym.scancode;
+			    if (scan_map.find(scancode) != scan_map.end()) {
+				set_key(scan_map.at(scancode), true);
+				stop_waiting();
+			    } 
+			    break;
+			}
+		    case SDL_KEYUP:
+			{
+			    const auto scancode = event.key.keysym.scancode;
+			    if (scan_map.find(scancode) != scan_map.end()) {
+				set_key(scan_map.at(scancode), false);
+				/* std::cerr << "Pressed " << std::hex << static_cast<int>(scan_map.at(scancode)) << '\n'; */
+			    } 
+			    break;
+			}
+		}
+	    }
 
-	    /* if (!advance) */ 
-		/* continue; */
+	    if (is_waiting())
+		continue;
 
-	    advance = false;
 	    const auto part1 = get_memory(get_program_counter());
 	    const auto part2 = get_memory(get_program_counter()+1);
 	    const Instruction instruction = (part1 << 8) | part2;

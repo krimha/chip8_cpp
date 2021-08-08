@@ -52,16 +52,21 @@ namespace Chip8 {
 	    void set_sound_register(uint8_t value) { sound_register = value; }
 	    void set_memory(uint16_t addr, uint8_t value) { memory[addr] = value; }
 
-	    void set_key(uint8_t key, bool value) { keyboard[key] = value; }
+	    void wait_for_input() { waiting = true; }
+	    void stop_waiting() { waiting = false; }
+	    bool is_waiting() { return waiting; }
+
+	    void set_key(uint8_t key, bool value) {
+		std::cerr << "Setting key " << std::hex << static_cast<int>(key) << " to " << value << '\n';
+		keyboard[key] = value; 
+
+	    }
 	    bool is_pressed(uint8_t key) const { return keyboard[key]; }
 
 	    uint64_t get_display_row(size_t row) const;
 	    void push_to_stack(uint16_t addr);
 
 	    void seed(int s) { mt.seed(s); };
-
-	    void set_jumped(bool val) { jumped_ = val; }
-	    bool jumped() const { return jumped_; }
 
         private:
             std::array<uint16_t,16> stack;
@@ -82,7 +87,7 @@ namespace Chip8 {
 	    std::mt19937 mt;
 	    std::uniform_int_distribution<uint8_t> dist;
 
-	    bool jumped_;
+	    bool waiting;
 
     };
 

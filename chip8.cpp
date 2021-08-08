@@ -43,20 +43,6 @@ namespace Chip8 {
 	, waiting{false}
     {
 
-	for (size_t i=0; i<registers.size(); ++i)
-	    registers[i] = 0;
-
-	for (size_t i=0; i<stack.size(); ++i)
-	    stack[i] = 0;
-
-	for (size_t i=0; i<memory.size(); ++i)
-	    memory[i] = 0;
-
-	for (size_t i=0; i<display.size(); ++i)
-	    display[i] = 0;
-
-	for (size_t i=0; i<keyboard.size(); ++i)
-	    keyboard[i] = 0;
 
         std::array<uint8_t,80> sprites = { 0xF0, 0x90, 0x90, 0x90, 0xF0,
 					 0x20, 0x60, 0x20, 0x20, 0x70, 
@@ -107,12 +93,20 @@ namespace Chip8 {
 
     void Chip8State::set_display_row(size_t row, uint64_t value)
     {
-	display[row] = value;
+	std::cerr << "Deprecated set_display_row\n";
+	/* display[row] = value; */
+    }
+
+    void Chip8State::set_display(size_t col, size_t row, bool value)
+    {
+	display[row*display_width + col] = value;
     }
 
     uint64_t Chip8State::get_display_row(size_t row) const
     {
-	return display[row];
+	std::cerr << "Deprectaed get_display_row\n";
+	return 0;
+	/* return display[row]; */
     }
 
 
@@ -128,7 +122,7 @@ namespace Chip8 {
     void Chip8State::clear_display()
     {
 	for (size_t i=0; i<display.size(); ++i)
-	    display[i] = 0;
+	    display[i] = false;
     }
 
 
@@ -246,19 +240,26 @@ namespace Chip8 {
 	    const auto x_pos = val_x % 64;
 	    const auto y_pos = val_y % 32;
 
-	    bool collision = 0;
+	    bool collision = false;
 
 	    for (uint16_t i=0; i<nibble; ++i) {
 		auto sprite_row = get_memory(get_I_register() + i);
-		
-		// Move sprite to beginning of line
-		uint64_t row = static_cast<uint64_t>(sprite_row) << (14*4 - x_pos);
-		auto curr_row = i+y_pos;
-		if (curr_row >= display.size())
-		    break;
+		auto cursor = 0b10000000;
+		for (size_t dx=0; dx<8; dx++) {
+		    const auto x = x_pos + dx;
+		    const auto y = y_pos + i;
 
-		collision |= (row & display[curr_row]) > 0;
-		display[curr_row] ^= row;
+		    if (x > 64)
+			continue;
+		    if (y > 32)
+			continue;
+
+		    const auto sprite_val = ((sprite_row & cursor) > 0) ? true : false;
+		    collision |= (sprite_val && get_display(x, y));
+		    set_display(x, y, sprite_val & get_display(x, y));
+		    
+		    cursor >>= 1;
+		}
 	    }
 	    set_register(0xF, collision ? 1 : 0); 
 	}
@@ -402,7 +403,7 @@ namespace Chip8 {
     }
 
     Chip8Runner::Chip8Runner() : Chip8State::Chip8State()
-			       /* , window_{initscr()} */
+			       , window_{initscr()}
     {
         if (SDL_Init(SDL_INIT_VIDEO) < 0)
             return;
@@ -498,13 +499,10 @@ namespace Chip8 {
 
 	// TODO: Don't hardcode width and height
 	for (int row=0; row<32; ++row) {
-	    uint64_t cursor = 0x8000000000000000;
 	    for (int col=0; col<64; ++col) {
-		if ((cursor & get_display_row(row)) == cursor) {
+		if (get_display(col, row)) {
 		    SDL_RenderDrawPoint(renderer, col, row);
-		    /* std::cerr << "Hit at " << std::dec << row << ' ' << col << '\n'; */
 		}
-		cursor >>= 1;	
 	    }
 	}
         SDL_RenderPresent(renderer);

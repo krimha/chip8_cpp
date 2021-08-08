@@ -51,6 +51,7 @@ namespace Chip8 {
 	    void set_delay_register(uint8_t value) { delay_register = value; }
 	    void set_sound_register(uint8_t value) { sound_register = value; }
 	    void set_memory(uint16_t addr, uint8_t value) { memory[addr] = value; }
+	    void set_display(size_t col, size_t row, bool value);
 
 	    void wait_for_input() { waiting = true; }
 	    void stop_waiting() { waiting = false; }
@@ -66,16 +67,27 @@ namespace Chip8 {
 	    uint64_t get_display_row(size_t row) const;
 	    void push_to_stack(uint16_t addr);
 
+	    bool get_display(size_t col, size_t row)
+	    {
+		return display[row*display_width+col];
+	    }
+
 	    void seed(int s) { mt.seed(s); };
 
+	    static constexpr size_t display_width = 64;
+	    static constexpr size_t display_height = 32;
+	    static constexpr size_t display_size = display_width*display_height;
+
         private:
-            std::array<uint16_t,16> stack;
-	    std::array<uint8_t,memory_size> memory;
-	    std::array<uint64_t,32> display;
-	    std::array<bool,16> keyboard;
+            std::array<uint16_t,16> stack{0};
+	    std::array<uint8_t,memory_size> memory{0};
+	    /* std::array<uint64_t,32> display; */
+	    std::array<bool,16> keyboard{0};
+	    std::array<bool,display_size> display{0};
+
 
             // VF should never be used (used as flag in some programs
-            std::array<uint8_t,16> registers;
+            std::array<uint8_t,16> registers{0};
             uint16_t I_register; // 12 lowest bits used
             uint8_t sound_register;
             uint8_t delay_register;
